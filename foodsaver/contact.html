@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact - Food Saver</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --green: #06C167; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Poppins', sans-serif; background: #fff; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 1.5rem; font-weight: 800; }
+  .logo b { color: var(--green); }
+  nav a { text-decoration: none; color: #333; font-weight: 500; margin-left: 20px; }
+  nav a.active, nav a:hover { color: var(--green); }
+
+  .banner { position: relative; height: 280px; background: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400') center/cover; display: flex; align-items: center; justify-content: center; }
+  .banner::after { content:''; position:absolute; inset:0; background:rgba(0,0,0,0.5); }
+  .banner h1 { position:relative; z-index:1; color:#fff; font-size:2.5rem; font-weight:800; letter-spacing:3px; }
+
+  .contact-section { max-width: 700px; margin: 50px auto; padding: 0 20px; }
+  h2.section-title { text-align: center; font-size: 1.2rem; font-weight: 800; margin-bottom: 24px; text-decoration: underline; text-decoration-color: var(--green); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 0.85rem; color: #555; margin-bottom: 4px; }
+  .field input, .field textarea, .field select { width: 100%; padding: 12px 14px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; font-family: 'Poppins', sans-serif; outline: none; transition: border-color 0.2s; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--green); }
+  .field textarea { min-height: 90px; resize: vertical; }
+  .send-btn { background: var(--green); color: #fff; border: none; padding: 11px 28px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.95rem; transition: background 0.2s; }
+  .send-btn:hover { background: #048a48; }
+  .contact-info { text-align: center; font-size: 0.88rem; color: #777; margin-top: 20px; line-height: 2; }
+  .contact-info a { color: var(--green); text-decoration: none; }
+
+  /* TOAST */
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 12px 28px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; z-index: 9999; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .toast.show { display: block; }
+
+  /* CHATBOT */
+  .chatbot-section { max-width: 700px; margin: 30px auto; padding: 0 20px 10px; }
+  .chatbot-box { border: 1.5px solid #e0e0e0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .chatbot-header { background: var(--green); padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+  .chatbot-header .bot-av { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+  .chatbot-header .bot-info h4 { color: #fff; font-size: 0.9rem; font-weight: 700; }
+  .chatbot-header .bot-info p { color: rgba(255,255,255,0.8); font-size: 0.72rem; }
+  .online-dot { width: 8px; height: 8px; background: #90EE90; border-radius: 50%; margin-left: auto; animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .chat-messages { height: 320px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #fafafa; }
+  .chat-msg { max-width: 78%; padding: 10px 14px; border-radius: 14px; font-size: 0.85rem; line-height: 1.5; word-break: break-word; }
+  .chat-msg.user { background: var(--green); color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+  .chat-msg.bot { background: #fff; color: #333; margin-right: auto; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .chat-msg.bot .msg-time { font-size: 0.7rem; color: #aaa; margin-top: 4px; }
+
+  /* Quick reply buttons */
+  .quick-replies { padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px; background: #fafafa; border-top: 1px solid #f0f0f0; }
+  .qr-btn { background: #fff; border: 1.5px solid #e0e0e0; color: #333; padding: 7px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; white-space: nowrap; }
+  .qr-btn:hover { border-color: var(--green); color: var(--green); background: rgba(6,193,103,0.05); }
+
+  .chat-input { display: flex; border-top: 1.5px solid #e0e0e0; background: #fff; }
+  .chat-input input { flex: 1; border: none; padding: 14px 16px; font-family: 'Poppins', sans-serif; font-size: 0.85rem; outline: none; background: transparent; }
+  .chat-input button { background: var(--green); color: #fff; border: none; padding: 12px 20px; font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 1rem; transition: background 0.2s; }
+  .chat-input button:hover { background: #048a48; }
+
+  /* Options menu */
+  .options-menu { padding: 12px 16px; background: #fafafa; border-top: 1px solid #f0f0f0; }
+  .options-menu p { font-size: 0.8rem; color: #777; margin-bottom: 8px; font-weight: 600; }
+  .option-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fff; border: 1.5px solid #eee; border-radius: 10px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.83rem; color: #333; font-weight: 500; }
+  .option-item:hover { border-color: var(--green); color: var(--green); background: rgba(6,193,103,0.04); }
+  .option-item .opt-num { width: 24px; height: 24px; background: var(--green); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800; flex-shrink: 0; }
+
+  /* FAQ */
+  .faq-section { max-width: 700px; margin: 30px auto 60px; padding: 0 20px; }
+  .faq-title { font-weight: 800; margin-bottom: 16px; font-size: 1rem; }
+  .faq-item { border-bottom: 1px solid #e0e0e0; }
+  .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: #333; }
+  .faq-q:hover { color: var(--green); }
+  .faq-a { font-size: 0.85rem; color: #666; padding-bottom: 14px; line-height: 1.6; display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-q { color: var(--green); }
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<header>
+  <div class="logo">Food <b>Saver</b></div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="d-ngo.html">D NGO</a><a href="contact.html" class="active">Contact</a>
+    <a href="profile.html">My Donations</a>
+  </nav>
+</header>
+
+<div class="banner"><h1>CONTACT US</h1></div>
+
+<!-- CONTACT FORM -->
+<div class="contact-section">
+  <h2 class="section-title">contact us</h2>
+  <form onsubmit="submitContact(event)">
+    <div class="field"><label>Name:</label><input type="text" id="cName" required placeholder="Your name"/></div>
+    <div class="field"><label>Email:</label><input type="email" id="cEmail" required placeholder="Your email"/></div>
+    <div class="field">
+      <label>Subject:</label>
+      <select id="cSubject">
+        <option value="General Inquiry">General Inquiry</option>
+        <option value="Food Donation Help">Food Donation Help</option>
+        <option value="Delivery Issue">Delivery Issue</option>
+        <option value="Account Problem">Account Problem</option>
+        <option value="Partnership / NGO">Partnership / NGO</option>
+        <option value="Feedback">Feedback</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="field"><label>Message:</label><textarea id="cMessage" required placeholder="Your message..."></textarea></div>
+    <button type="submit" class="send-btn">📨 Send Message</button>
+  </form>
+  <div class="contact-info">
+    📧 <a href="/cdn-cgi/l/email-protection#d7bbb6afa3bbbeb9b297b0bab6bebbf9b4b8ba"><span class="__cf_email__" data-cfemail="7c101d0408101512193c1b111d1510521f1311"><span class="__cf_email__" data-cfemail="076b667f736b6e696247606a666e6b2964686a">[email&#160;protected]</span></span></a><br>
+    📞 <a href="tel:9764835785">9764835785</a><br>
+    📍 <a href="https://maps.app.goo.gl/s3Pe4R7fruAbje2J7" target="_blank" style="color:var(--green);text-decoration:none;">D NGO, KalyanNagar, Bangalore 🗺️</a>
+  </div>
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbot-section">
+  <div class="chatbot-box">
+    <!-- Header -->
+    <div class="chatbot-header">
+      <div class="bot-av">🤖</div>
+      <div class="bot-info">
+        <h4>Food Saver Support</h4>
+        <p>Typically replies instantly</p>
+      </div>
+      <div class="online-dot"></div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg bot">
+        👋 Hello! Welcome to <strong>Food Saver Support</strong>.<br><br>
+        I'm here to help you. Please choose an option below or type your question!
+        <div class="msg-time">Just now</div>
+      </div>
+    </div>
+
+    <!-- Options Menu (WhatsApp style) -->
+    <div class="options-menu" id="optionsMenu">
+      <p>📋 How can we help you today?</p>
+      <div class="option-item" onclick="selectOption(1, 'How to donate food?')"><div class="opt-num">1</div> How to donate food?</div>
+      <div class="option-item" onclick="selectOption(2, 'Track my donation')"><div class="opt-num">2</div> Track my donation</div>
+      <div class="option-item" onclick="selectOption(3, 'Delivery information')"><div class="opt-num">3</div> Delivery information</div>
+      <div class="option-item" onclick="selectOption(4, 'Account & Login help')"><div class="opt-num">4</div> Account & Login help</div>
+      <div class="option-item" onclick="selectOption(5, 'NGO / Charity registration')"><div class="opt-num">5</div> NGO / Charity registration</div>
+      <div class="option-item" onclick="selectOption(6, 'Food categories accepted')"><div class="opt-num">6</div> Food categories accepted</div>
+      <div class="option-item" onclick="selectOption(7, 'Volunteer as delivery person')"><div class="opt-num">7</div> Volunteer as delivery person</div>
+      <div class="option-item" onclick="selectOption(8, 'Report an issue')"><div class="opt-num">8</div> Report an issue</div>
+      <div class="option-item" onclick="selectOption(9, 'Partner with us')"><div class="opt-num">9</div> Partner with us</div>
+      <div class="option-item" onclick="selectOption(10, 'Talk to human support')"><div class="opt-num">10</div> 📧 Talk to human support (Email us)</div>
+    </div>
+
+    <!-- Quick Replies -->
+    <div class="quick-replies" id="quickReplies" style="display:none;">
+      <button class="qr-btn" onclick="showOptions()">🔙 Main Menu</button>
+      <button class="qr-btn" onclick="selectOption(10,'Talk to human support')">📧 Email Us</button>
+      <button class="qr-btn" onclick="selectOption(1,'How to donate food?')">🍱 Donate Food</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Type a message or choose above..." onkeydown="if(event.key==='Enter') sendChat()"/>
+      <button onclick="sendChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <div class="faq-title">❓ Help & FAQs</div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">How to donate food? <span>+</span></div>
+    <div class="faq-a">Register on the platform, login as a user, fill the food donation form with food name, type, quantity, and your address. Our team will collect the food from your doorstep for free.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">How will my donation be used? <span>+</span></div>
+    <div class="faq-a">Your donated food will be collected by our delivery team and distributed to registered NGOs, charities, and directly to needy individuals in your area.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">What food can I donate? <span>+</span></div>
+    <div class="faq-a">You can donate Raw Food (uncooked grains, vegetables), Cooked Food (prepared meals), and Packed Food (sealed packaged items). All food must be fresh and safe to eat.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">What should I do if my food is near expiry? <span>+</span></div>
+    <div class="faq-a">Please only donate food that is fresh and safe to eat. Do not donate expired or spoiled food. If you're unsure, contact us before donating at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="402c2138342c292e2500272d21292c6e232f2d"><span class="__cf_email__" data-cfemail="7a161b020e1613141f3a1d171b131654191517">[email&#160;protected]</span></a>.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">Is this service free? <span>+</span></div>
+    <div class="faq-a">Yes! Food Saver is 100% free for donors, NGOs, and delivery volunteers. Our mission is to reduce food waste and fight hunger — no charges involved.</div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const MY_EMAIL = 'laxtline@gmail.com';
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ---- CONTACT FORM → sends email to laxtline@gmail.com ----
+function submitContact(e) {
+  e.preventDefault();
+  const name = document.getElementById('cName').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  const subject = document.getElementById('cSubject').value;
+  const message = document.getElementById('cMessage').value.trim();
+
+  // Save to localStorage for admin
+  const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+  feedbacks.push({ name, email, subject, message, time: new Date().toLocaleString() });
+  localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+
+  // Open mailto so owner receives the email
+  const mailSubject = encodeURIComponent('Food Saver Contact: ' + subject + ' - from ' + name);
+  const mailBody = encodeURIComponent(
+    'New contact form submission:\n\n' +
+    'Name: ' + name + '\n' +
+    'Email: ' + email + '\n' +
+    'Subject: ' + subject + '\n\n' +
+    'Message:\n' + message + '\n\n' +
+    '---\nSent from Food Saver Contact Form'
+  );
+  window.open('mailto:' + MY_EMAIL + '?subject=' + mailSubject + '&body=' + mailBody);
+
+  showToast('✅ Message sent! We will reply soon.');
+  e.target.reset();
+}
+
+// ---- CHATBOT ----
+const botAnswers = {
+  1: {
+    q: 'How to donate food?',
+    a: '🍱 <strong>How to Donate Food:</strong><br><br>' +
+       '1️⃣ Register/Login as a User<br>' +
+       '2️⃣ Click "Donate Food" button<br>' +
+       '3️⃣ Fill food name, type (veg/non-veg), category & quantity<br>' +
+       '4️⃣ Enter your address & contact<br>' +
+       '5️⃣ Submit — our team picks it up from your door! 🚪<br><br>' +
+       '<a href="donate.html" style="color:var(--green);font-weight:700;">→ Donate Food Now</a>'
+  },
+  2: {
+    q: 'Track my donation',
+    a: '📦 <strong>Track Your Donation:</strong><br><br>' +
+       'Login to your account and go to <strong>Profile</strong> page. Your donation history with status (Pending / Assigned / Delivered) is shown there.<br><br>' +
+       '<a href="profile.html" style="color:var(--green);font-weight:700;">→ Go to Profile</a>'
+  },
+  3: {
+    q: 'Delivery information',
+    a: '🛵 <strong>Delivery Info:</strong><br><br>' +
+       '• We offer FREE door pickup service<br>' +
+       '• Delivery volunteers collect from your address<br>' +
+       '• Food is delivered to the nearest NGO or needy person<br>' +
+       '• Pickup usually happens within a few hours of donation<br><br>' +
+       'Want to become a delivery volunteer? Choose option 7!'
+  },
+  4: {
+    q: 'Account & Login help',
+    a: '🔐 <strong>Account Help:</strong><br><br>' +
+       '• <strong>Forgot password?</strong> Use "Forgot password" on login page — a reset code will be sent to your email<br>' +
+       '• <strong>Account not found?</strong> You may need to register first<br>' +
+       '• <strong>Already logged in but redirected?</strong> Clear browser storage and try again<br><br>' +
+       '<a href="user-signup.html" style="color:var(--green);font-weight:700;">→ Login / Register</a>'
+  },
+  5: {
+    q: 'NGO / Charity registration',
+    a: '🏢 <strong>NGO & Charity Registration:</strong><br><br>' +
+       'NGOs and charities can register as Admin on our platform. Once registered, you can:<br>' +
+       '• View all available food donations<br>' +
+       '• Filter by location/district<br>' +
+       '• Select food donations you need<br>' +
+       '• Request pickup delivery<br><br>' +
+       'Email us to get started: <a href="mailto:laxtline@gmail.com" style="color:var(--green);">laxtline@gmail.com</a>'
+  },
+  6: {
+    q: 'Food categories accepted',
+    a: '🍽️ <strong>Accepted Food Categories:</strong><br><br>' +
+       '🌾 <strong>Raw Food</strong> — Uncooked grains, dal, vegetables, fruits<br>' +
+       '🍛 <strong>Cooked Food</strong> — Prepared meals, rice, curry, roti<br>' +
+       '📦 <strong>Packed Food</strong> — Sealed packaged items within expiry<br><br>' +
+       '⚠️ Please do NOT donate: Expired food, spoiled items, or anything unsafe to eat.'
+  },
+  7: {
+    q: 'Volunteer as delivery person',
+    a: '🛵 <strong>Become a Delivery Volunteer:</strong><br><br>' +
+       'Help us rescue food and deliver it to people who need it!<br><br>' +
+       '✅ Register on our platform as Delivery Person<br>' +
+       '✅ View available pickup orders in your area<br>' +
+       '✅ Accept orders and see pickup + drop addresses<br>' +
+       '✅ Make a real difference in your community<br><br>' +
+       '<a href="delivery-login.html" style="color:var(--green);font-weight:700;">→ Register as Delivery Volunteer</a>'
+  },
+  8: {
+    q: 'Report an issue',
+    a: '🚨 <strong>Report an Issue:</strong><br><br>' +
+       'We are sorry you are facing an issue! Please email us with details:<br><br>' +
+       '📧 <a href="mailto:laxtline@gmail.com" style="color:var(--green);">laxtline@gmail.com</a><br>' +
+       '📞 <a href="tel:9938649590" style="color:var(--green);">9938649590</a><br><br>' +
+       'Include your name, email, and description of the issue. We\'ll respond within 24 hours!'
+  },
+  9: {
+    q: 'Partner with us',
+    a: '🤝 <strong>Partner with Food Saver:</strong><br><br>' +
+       'We welcome partnerships with:<br>' +
+       '• Restaurants & Hotels<br>' +
+       '• Event management companies<br>' +
+       '• Corporate offices<br>' +
+       '• NGOs & Charities<br>' +
+       '• Government organizations<br><br>' +
+       'Reach out to us at: <a href="mailto:laxtline@gmail.com" style="color:var(--green);">laxtline@gmail.com</a>'
+  },
+  10: {
+    q: 'Talk to human support',
+    a: '💬 <strong>Human Support:</strong><br><br>' +
+       'Our team is ready to help you!<br><br>' +
+       '📧 Email: <a href="mailto:laxtline@gmail.com" style="color:var(--green);">laxtline@gmail.com</a><br>' +
+       '📞 Phone: <a href="tel:9938649590" style="color:var(--green);">9938649590</a><br><br>' +
+       'Click below to email us directly 👇',
+    action: () => {
+      window.open('mailto:laxtline@gmail.com?subject=Support%20Request%20-%20Food Saver&body=Hi%20Food Saver%20Team%2C%0A%0AI%20need%20help%20with%3A%0A%0A[Describe%20your%20issue%20here]%0A%0AThank%20you');
+    }
+  }
+};
+
+function addMsg(html, type) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + type;
+  div.innerHTML = html + (type === 'bot' ? '<div class="msg-time">Just now</div>' : '');
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showOptions() {
+  document.getElementById('optionsMenu').style.display = 'block';
+  document.getElementById('quickReplies').style.display = 'none';
+  addMsg('📋 Main menu — please choose an option:', 'bot');
+}
+
+function selectOption(num, label) {
+  addMsg(label, 'user');
+  document.getElementById('optionsMenu').style.display = 'none';
+  document.getElementById('quickReplies').style.display = 'flex';
+
+  setTimeout(() => {
+    const ans = botAnswers[num];
+    if (ans) {
+      addMsg(ans.a, 'bot');
+      if (ans.action) setTimeout(ans.action, 800);
+    }
+  }, 500);
+}
+
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  addMsg(msg, 'user');
+  input.value = '';
+  document.getElementById('optionsMenu').style.display = 'none';
+  document.getElementById('quickReplies').style.display = 'flex';
+
+  // Smart keyword matching
+  const m = msg.toLowerCase();
+  setTimeout(() => {
+    if (m.includes('hi') || m.includes('hello') || m.includes('hey')) {
+      addMsg('👋 Hello! How can I help you today? Please choose from the options or type your question.', 'bot');
+      showOptions();
+    } else if (m.includes('donat') || m.includes('food')) {
+      selectOption(1, 'How to donate food?');
+    } else if (m.includes('track') || m.includes('status')) {
+      selectOption(2, 'Track my donation');
+    } else if (m.includes('deliver')) {
+      selectOption(3, 'Delivery information');
+    } else if (m.includes('account') || m.includes('login') || m.includes('password')) {
+      selectOption(4, 'Account & Login help');
+    } else if (m.includes('ngo') || m.includes('charity')) {
+      selectOption(5, 'NGO / Charity registration');
+    } else if (m.includes('categor') || m.includes('raw') || m.includes('cooked') || m.includes('packed')) {
+      selectOption(6, 'Food categories accepted');
+    } else if (m.includes('volunteer') || m.includes('driver')) {
+      selectOption(7, 'Volunteer as delivery person');
+    } else if (m.includes('issue') || m.includes('problem') || m.includes('error')) {
+      selectOption(8, 'Report an issue');
+    } else if (m.includes('partner')) {
+      selectOption(9, 'Partner with us');
+    } else if (m.includes('human') || m.includes('email') || m.includes('contact') || m.includes('support')) {
+      selectOption(10

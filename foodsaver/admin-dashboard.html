@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Food Saver</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--green:#06C167;--dg:#048a48;--orange:#FF6B00;--blue:#3b82f6;--red:#ef4444;--yellow:#f59e0b;--bg:#f4f6f9;--white:#fff;--border:#e5e7eb;--sidebar:240px;--topbar:60px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:#111}
+
+/* SITE NAV */
+.site-nav{position:fixed;top:0;left:0;right:0;height:var(--topbar);background:#111;display:flex;align-items:center;padding:0 20px;z-index:300;gap:6px}
+.site-nav .sn-logo{color:#fff;font-size:1rem;font-weight:900;margin-right:12px;text-decoration:none}
+.site-nav .sn-logo b{color:var(--green)}
+.site-nav a{color:#aaa;text-decoration:none;font-size:.75rem;font-weight:500;padding:5px 10px;border-radius:6px;transition:.2s;white-space:nowrap}
+.site-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.site-nav .sn-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.site-nav .sn-badge{background:var(--green);color:#fff;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700}
+.logout-sn{color:var(--red)!important;font-weight:700!important}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:var(--topbar);left:0;width:var(--sidebar);height:calc(100vh - var(--topbar));background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+.sb-head{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-head h3{font-size:.82rem;font-weight:800;color:#111}
+.sb-head p{font-size:.7rem;color:#888;margin-top:2px}
+.sb-section{padding:10px 10px 4px;font-size:.62rem;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:1px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;border-radius:9px;cursor:pointer;border:none;background:none;font-family:'Poppins',sans-serif;font-size:.82rem;font-weight:500;color:#666;text-align:left;width:calc(100% - 16px);transition:.2s}
+.sb-link:hover{background:#f5f5f5;color:#111}
+.sb-link.active{background:rgba(6,193,103,.1);color:var(--green);font-weight:700}
+.sb-link .si{font-size:1rem;width:20px;text-align:center}
+.sb-link .badge{margin-left:auto;background:var(--red);color:#fff;border-radius:20px;padding:1px 7px;font-size:.6rem;font-weight:700}
+.sb-foot{margin-top:auto;padding:14px 10px;border-top:1px solid var(--border)}
+.sb-admin{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:#f9f9f9}
+.sb-av{width:36px;height:36px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.9rem;flex-shrink:0}
+.sb-info h4{font-size:.78rem;font-weight:700}
+.sb-info p{font-size:.65rem;color:#888}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);margin-top:var(--topbar);padding:24px;min-height:calc(100vh - var(--topbar))}
+.page{display:none}
+.page.active{display:block}
+.page-title{font-size:1.3rem;font-weight:800;margin-bottom:6px}
+.page-sub{font-size:.82rem;color:#888;margin-bottom:24px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 1px 8px rgba(0,0,0,.06);display:flex;align-items:center;gap:14px;transition:.2s;cursor:pointer;border:2px solid transparent}
+.stat-card:hover{border-color:var(--green)}
+.stat-ic{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.stat-card.total .stat-ic{background:rgba(6,193,103,.1)}
+.stat-card.pending .stat-ic{background:rgba(245,158,11,.1)}
+.stat-card.delivery .stat-ic{background:rgba(59,130,246,.1)}
+.stat-card.done .stat-ic{background:rgba(6,193,103,.08)}
+.stat-card.users .stat-ic{background:rgba(0,0,0,.05)}
+.stat-val{font-size:1.8rem;font-weight:900;line-height:1}
+.stat-label{font-size:.72rem;color:#888;margin-top:4px}
+
+/* TABLE CARD */
+.tcard{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:20px}
+.tcard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.tcard-title{font-size:.95rem;font-weight:800}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fsel{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Poppins',sans-serif;font-size:.75rem;outline:none;background:#fff}
+.fsel:focus{border-color:var(--green)}
+.fbtn{background:var(--green);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-family:'Poppins',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer}
+.fbtn.red{background:var(--red)}
+.fbtn.blue{background:var(--blue)}
+
+/* SEARCH */
+.search-box{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Poppins',sans-serif;font-size:.75rem;outline:none;width:200px}
+.search-box:focus{border-color:var(--green)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:600px}
+th{background:#f8f9fa;color:#666;padding:10px 12px;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0}
+th.col-name{min-width:130px}
+th.col-qty{min-width:80px}
+td{padding:11px 12px;border-bottom:1px solid #f5f5f5;color:#333;vertical-align:middle}
+td.col-qty{white-space:nowrap;font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700;white-space:nowrap}
+.badge.pending{background:#fef3c7;color:#92400e}
+.badge.assigned{background:#dbeafe;color:#1e40af}
+.badge.delivered{background:#d1fae5;color:#065f46}
+.badge.cancelled{background:#fee2e2;color:#991b1b}
+.badge.online{background:#d1fae5;color:#065f46}
+.badge.offline{background:#f3f4f6;color:#6b7280}
+.badge.veg{background:#d1fae5;color:#065f46}
+.badge.nonveg{background:#fee2e2;color:#991b1b}
+
+/* ACTION BTNS */
+.ab{border:none;padding:5px 12px;border-radius:6px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;margin:1px}
+.ab.green{background:rgba(6,193,103,.12);color:var(--green)}
+.ab.green:hover{background:var(--green);color:#fff}
+.ab.blue{background:rgba(59,130,246,.12);color:var(--blue)}
+.ab.blue:hover{background:var(--blue);color:#fff}
+.ab.red{background:rgba(239,68,68,.1);color:var(--red)}
+.ab.red:hover{background:var(--red);color:#fff}
+.ab.orange{background:rgba(255,107,0,.1);color:var(--orange)}
+.ab.orange:hover{background:var(--orange);color:#fff}
+.ab.disabled{background:#f3f4f6;color:#d1d5db;cursor:not-allowed}
+
+/* LIVE INDICATOR */
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:blink 1.5s infinite;margin-right:4px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.offline-dot{width:8px;height:8px;border-radius:50%;background:#9ca3af;display:inline-block;margin-right:4px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#111;color:#fff;padding:12px 20px;border-radius:12px;font-size:.82rem;font-weight:600;z-index:9999;display:none;box-shadow:0 8px 32px rgba(0,0,0,.2);max-width:300px}
+.toast.show{display:flex;align-items:center;gap:8px}
+.toast.ok{border-left:4px solid var(--green)}
+.toast.err{border-left:4px solid var(--red)}
+
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-ov.show{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:32px;width:420px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-box h3{font-size:1rem;font-weight:800;margin-bottom:8px}
+.modal-box p{font-size:.85rem;color:#666;margin-bottom:20px}
+.modal-btns{display:flex;gap:10px}
+.modal-btns button{flex:1;padding:11px;border:none;border-radius:8px;font-family:'Poppins',sans-serif;font-weight:700;cursor:pointer;font-size:.85rem}
+.mb-cancel{background:#f3f4f6;color:#555}
+.mb-confirm{background:var(--red);color:#fff}
+.mb-ok{background:var(--green);color:#fff}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px;color:#bbb}
+.empty .ei{font-size:2.5rem;margin-bottom:10px}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .site-nav a:not(.sn-logo):not(.logout-sn){display:none}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- CANCEL MODAL -->
+<div class="modal-ov" id="cancelModal">
+  <div class="modal-box">
+    <h3>❌ Cancel Donation</h3>
+    <p>Are you sure you want to cancel this donation? The donor will be notified.</p>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="document.getElementById('cancelModal').classList.remove('show')">No, Keep It</button>
+      <button class="mb-confirm" onclick="confirmCancel()">Yes, Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SITE NAV -->
+<div class="site-nav">
+  <a href="index.html" class="sn-logo">Food<b>Saver</b></a>
+  <a href="index.html">🏠 Home</a>
+  <a href="donate.html">🍱 Donate</a>
+  <a href="profile.html">📦 Status</a>
+  <a href="d-ngo.html">🌟 NGO</a>
+  <a href="contact.html">📞 Contact</a>
+  <div class="sn-right">
+    <span class="sn-badge">⚙️ ADMIN</span>
+    <a href="#" class="logout-sn" onclick="localStorage.removeItem('adminLogged');window.location.href='index.html'">Logout</a>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-head"><h3>Admin Panel</h3><p>laxtline@gmail.com</p></div>
+
+  <div class="sb-section">Overview</div>
+  <button class="sb-link active" onclick="showPage('dashboard',this)"><span class="si">🏠</span> Dashboard</button>
+
+  <div class="sb-section">Food Donations</div>
+  <button class="sb-link" onclick="showPage('all-donations',this)"><span class="si">🍱</span> All Donations <span class="badge" id="sb-total">0</span></button>
+  <button class="sb-link" onclick="showPage('pending',this)"><span class="si">⏳</span> Pending <span class="badge" id="sb-pending">0</span></button>
+  <button class="sb-link" onclick="showPage('in-delivery',this)"><span class="si">🚚</span> In Delivery</button>
+  <button class="sb-link" onclick="showPage('delivered',this)"><span class="si">✅</span> Delivered</button>
+  <button class="sb-link" onclick="showPage('cancelled',this)"><span class="si">❌</span> Cancelled</button>
+
+  <div class="sb-section">Users & Agents</div>
+  <button class="sb-link" onclick="showPage('users',this)"><span class="si">👥</span> User Database</button>
+  <button class="sb-link" onclick="showPage('delivery-agents',this)"><span class="si">🛵</span> Delivery Agents</button>
+
+  <div class="sb-section">Messages</div>
+  <button class="sb-link" onclick="showPage('feedbacks',this)"><span class="si">💬</span> Feedbacks</button>
+
+  <div class="sb-foot">
+    <div class="sb-admin">
+      <div class="sb-av">A</div>
+      <div class="sb-info"><h4>Admin</h4><p>laxtline@gmail.com</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-title">Dashboard Overview</div>
+    <div class="page-sub">Welcome back, Admin! Here's the live summary.</div>
+    <div class="stats-grid">
+      <div class="stat-card total" onclick="showPage('all-donations',document.querySelector('.sb-link:nth-child(5)'))">
+        <div class="stat-ic">🍱</div>
+        <div><div class="stat-val" id="ds-total">0</div><div class="stat-label">Total Donations</div></div>
+      </div>
+      <div class="stat-card pending" onclick="showPage('pending',document.querySelector('.sb-link:nth-child(6)'))">
+        <div class="stat-ic">⏳</div>
+        <div><div class="stat-val" id="ds-pending">0</div><div class="stat-label">Pending Pickup</div></div>
+      </div>
+      <div class="stat-card delivery" onclick="showPage('in-delivery',document.querySelector('.sb-link:nth-child(7)'))">
+        <div class="stat-ic">🚚</div>
+        <div><div class="stat-val" id="ds-delivery">0</div><div class="stat-label">In Delivery</div></div>
+      </div>
+      <div class="stat-card done" onclick="showPage('delivered',document.querySelector('.sb-link:nth-child(8)'))">
+        <div class="stat-ic">✅</div>
+        <div><div class="stat-val" id="ds-done">0</div><div class="stat-label">Delivered</div></div>
+      </div>
+      <div class="stat-card users" onclick="showPage('users',document.querySelector('.sb-link:nth-child(11)'))">
+        <div class="stat-ic">👥</div>
+        <div><div class="stat-val" id="ds-users">0</div><div class="stat-label">Registered Users</div></div>
+      </div>
+      <div class="stat-card" style="background:rgba(255,107,0,.06);border:1px solid rgba(255,107,0,.15)" onclick="showPage('delivery-agents',document.querySelector('.sb-link:nth-child(12)'))">
+        <div class="stat-ic" style="background:rgba(255,107,0,.1)">🛵</div>
+        <div><div class="stat-val" id="ds-agents">0</div><div class="stat-label">Delivery Agents</div></div>
+      </div>
+      <div class="stat-card" style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12)">
+        <div class="stat-ic" style="background:rgba(239,68,68,.1)">❌</div>
+        <div><div class="stat-val" id="ds-cancelled">0</div><div class="stat-label">Cancelled</div></div>
+      </div>
+      <div class="stat-card" style="background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.15)">
+        <div class="stat-ic" style="background:rgba(245,158,11,.1)">💬</div>
+        <div><div class="stat-val" id="ds-fb">0</div><div class="stat-label">Feedbacks</div></div>
+      </div>
+    </div>
+    <!-- Recent 5 donations -->
+    <div class="tcard">
+      <div class="tcard-head"><div class="tcard-title"><span class="live-dot"></span> Live Recent Donations</div><button class="fbtn" onclick="showPage('all-donations',document.querySelectorAll('.sb-link')[4])">View All</button></div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="col-name">Name</th><th>Food</th><th class="col-qty">Qty</th><th>Phone</th><th>Address</th><th>Time</th><th>Status</th><th>Action</th></tr></thead><tbody id="recent-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ALL DONATIONS -->
+  <div class="page" id="page-all-donations">
+    <div class="page-title">All Donations</div>
+    <div class="page-sub">Complete food donation database</div>
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-title">🍱 Food Donation Database</div>
+        <div class="filters">
+          <input class="search-box" id="don-search" placeholder="Search name/food/phone..." oninput="renderDonations()"/>
+          <select class="fsel" id="don-status" onchange="renderDonations()"><option value="">All Status</option><option value="assigned">Pending</option><option value="in-delivery">In Delivery</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select>
+          <select class="fsel" id="don-loc" onchange="renderDonations()"><option value="">All Locations</option></select>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="col-name">Donor Name</th><th>Food</th><th>Type</th><th class="col-qty">Qty</th><th>Phone</th><th>Address</th><th>Date/Time</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead><tbody id="don-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div class="page" id="page-pending">
+    <div class="page-title">Pending Donations</div>
+    <div class="page-sub">Donations waiting for delivery assignment</div>
+    <div class="tcard">
+      <div class="tcard-head"><div class="tcard-title">⏳ Pending Pickup</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="col-name">Donor</th><th>Food</th><th class="col-qty">Qty</th><th>Phone</th><th>Address</th><th>Time</th><th>Actions</th></tr></thead></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- IN DELIVERY -->
+  <div class="page" id="page-in-delivery">
+    <div class="page-title">In Delivery</div>
+    <div class="page-sub">Orders currently being delivered</div>
+    <div class="tcard">
+      <div class="tcard-head"><div class="tcard-title">🚚 In Delivery</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="col-name">Donor</th><th>Food</th><th class="col-qty">Qty</th><th>Agent</th><th>Address</th><th>Time</th><th>Actions</th></tr></thead><tbody id="indelivery-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- DELIVERED -->
+  <div class="page" id="page-delivered">
+    <div class="page-title">Delivered</div>
+    <div class="page-sub">Successfully delivered to D NGO</div>
+    <div class="tcard">
+      <div class="tcard-head"><div class="tcard-title">✅ Delivered to D NGO</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="col-name">Donor</th><th>Food</th><th class="col-qty">Qty</th><th>Agent</th><th>Address</th><th>Delivered At</th></tr></thead><tbody id="delivered-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- CANCELLED -->
+  <div class="page" id="page-cancelled">
+    <div class="page-title">Cancelled Donations</div>
+    <div class="page-sub">Donations that were cancelled</div>
+    <div class="tcard">
+      <div class="tcard-head"><div class="tcard-title">❌ Cancelled Donations</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th class="col-name">Donor</th><th>Food</th><th class="col-qty">Qty</th><th>Phone</th><th>Reason</th><th>Cancelled At</th><th>Actions</th></tr></thead><tbody id="cancelled-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- USER DATABASE -->
+  <div class="page" id="page-users">
+    <div class="page-title">User Database</div>
+    <div class="page-sub">All registered users on the platform</div>
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-title">👥 Registered Users</div>
+        <div class="filters"><input class="search-box" id="user-search" placeholder="Search users..." oninput="renderUsers()"/></div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th>Name</th><th>Email</th><th>Gender</th><th>Donations Made</th><th>Joined</th></tr></thead><tbody id="users-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- DELIVERY AGENTS -->
+  <div class="page" id="page-delivery-agents">
+    <div class="page-title">Delivery Agents</div>
+    <div class="page-sub">All delivery agents and their order history</div>
+    <div class="tcard">
+      <div class="tcard-head"><div class="tcard-title">🛵 Delivery Agent Database</div></div>
+      <div class="tbl-wrap"><table><thead><tr><th>No.</th><th>Agent Name</th><th>Vehicle</th><th>Area</th><th>Orders Taken</th><th>Delivered</th><th>In Progress</th><th>Status</th></tr></thead><tbody id="agents-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- FEEDBACKS -->
+  <div class="page" id="page-feedbacks">
+    <div class="page-title">Feedbacks &amp; Messages</div>
+    <div class="page-sub">Messages received from Contact form</div>
+    <div class="tcard">
+      <div class="tcard-head"><div class="tcard-title">💬 User Messages</div></div>
+      <div id="fb-list"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// Auth check
+if(localStorage.getItem('adminLogged')!=='1'){ window.location.href='admin-login.html'; }
+
+var cancelIdx = -1;
+
+function getDon(){ return JSON.parse(localStorage.getItem('donations')||'[]'); }
+function saveDon(d){ localStorage.setItem('donations',JSON.stringify(d)); }
+function getUsers(){ return JSON.parse(localStorage.getItem('users')||'[]'); }
+function getFb(){ return JSON.parse(localStorage.getItem('feedbacks')||'[]'); }
+
+// Init sample data
+function initData(){
+  if(!localStorage.getItem('donations')){
+    saveDon([
+      {id:1001,name:'Abinesh',food:'Rice',type:'veg',category:'cooked-food',phoneno:'8190958524',datetime:'2024-03-22 10:30',address:'Teppakulam, KalyanNagar',district:'KalyanNagar',quantity:'2 kg',status:'assigned'},
+      {id:1002,name:'Kishor',food:'Biryani',type:'non-veg',category:'cooked-food',phoneno:'8903732696',datetime:'2024-03-22 11:00',address:'Main Road, KalyanNagar',district:'KalyanNagar',quantity:'5 members',status:'in-delivery',takenBy:'raju'},
+      {id:1003,name:'Prasanna',food:'Dosa',type:'veg',category:'cooked-food',phoneno:'9442454056',datetime:'2024-03-21 16:35',address:'SK Nagar, KalyanNagar',district:'KalyanNagar',quantity:'10 persons',status:'delivered',takenBy:'raju',deliveredAt:'2024-03-21 18:00'},
+      {id:1004,name:'Arun',food:'Idli',type:'veg',category:'cooked-food',phoneno:'9500458458',datetime:'2024-03-21 09:00',address:'Park Street, KalyanNagar',district:'KalyanNagar',quantity:'20 pieces',status:'assigned'},
+    ]);
+  }
+}
+
+function toast(msg,type){
+  var t=document.getElementById('toast');
+  t.innerHTML=msg; t.className='toast show '+(type||'ok');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+function showPage(name, el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.sb-link').forEach(function(l){l.classList.remove('active');});
+  var pg=document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  updateStats();
+  renderPage(name);
+}
+
+function updateStats(){
+  var d=getDon(), u=getUsers(), fb=getFb();
+  var pending=d.filter(function(x){return x.status==='assigned';}).length;
+  var inDel=d.filter(function(x){return x.status==='in-delivery';}).length;
+  var done=d.filter(function(x){return x.status==='delivered';}).length;
+  var cancelled=d.filter(function(x){return x.status==='cancelled';}).length;
+  // agents
+  var agents=[...new Set(d.filter(function(x){return x.takenBy;}).map(function(x){return x.takenBy;}))];
+
+  document.getElementById('ds-total').textContent=d.length;
+  document.getElementById('ds-pending').textContent=pending;
+  document.getElementById('ds-delivery').textContent=inDel;
+  document.getElementById('ds-done').textContent=done;
+  document.getElementById('ds-users').textContent=u.length;
+  var regAgentCount=JSON.parse(localStorage.getItem('deliveryAgents')||'[]').length;
+  document.getElementById('ds-agents').textContent=Math.max(agents.length,regAgentCount);
+  document.getElementById('ds-cancelled').textContent=cancelled;
+  document.getElementById('ds-fb').textContent=fb.length;
+  document.getElementById('sb-total').textContent=d.length;
+  document.getElementById('sb-pending').textContent=pending;
+}
+
+function renderPage(name){
+  if(name==='dashboard') renderDashboard();
+  else if(name==='all-donations') renderDonations();
+  else if(name==='pending') renderFiltered('assigned','pending-tbody',true);
+  else if(name==='in-delivery') renderFiltered('in-delivery','indelivery-tbody',false);
+  else if(name==='delivered') renderFiltered('delivered','delivered-tbody',false,true);
+  else if(name==='cancelled') renderCancelled();
+  else if(name==='users') renderUsers();
+  else if(name==='delivery-agents') renderAgents();
+  else if(name==='feedbacks') renderFeedbacks();
+}
+
+function badgeHtml(status){
+  var map={assigned:'⏳ Pending',pending:'⏳ Pending','in-delivery':'🚚 In Delivery',delivered:'✅ Delivered',cancelled:'❌ Cancelled'};
+  var cls={assigned:'pending',pending:'pending','in-delivery':'assigned',delivered:'delivered',cancelled:'cancelled'};
+  return '<span class="badge '+(cls[status]||'pending')+'">'+(map[status]||status)+'</span>';
+}
+
+function actionBtns(d,idx){
+  if(d.status==='cancelled') return '<span style="color:#bbb;font-size:.7rem">Cancelled</span>';
+  if(d.status==='delivered') return '<span style="color:var(--green);font-size:.7rem;font-weight:700">✅ Done</span>';
+  var html='';
+  if(d.status==='assigned') html+='<button class="ab green" onclick="changeStatus('+idx+',\'in-delivery\')">Assign 🚚</button>';
+  if(d.status==='in-delivery') html+='<button class="ab blue" onclick="changeStatus('+idx+',\'delivered\')">Delivered ✅</button>';
+  html+='<button class="ab red" onclick="openCancel('+idx+')">Cancel ❌</button>';
+  return html;
+}
+
+function changeStatus(idx,status){
+  var d=getDon();
+  d[idx].status=status;
+  if(status==='delivered') d[idx].deliveredAt=new Date().toLocaleString();
+  saveDon(d);
+  updateStats();
+  toast('✅ Status updated to: '+status);
+  renderPage(document.querySelector('.sb-link.active')?.textContent?.trim()||'dashboard');
+}
+
+function openCancel(idx){
+  cancelIdx=idx;
+  document.getElementById('cancelModal').classList.add('show');
+}
+
+function confirmCancel(){
+  if(cancelIdx<0) return;
+  var d=getDon();
+  d[cancelIdx].status='cancelled';
+  d[cancelIdx].cancelledAt=new Date().toLocaleString();
+  d[cancelIdx].cancelReason='Cancelled by Admin';
+  saveDon(d);
+  document.getElementById('cancelModal').classList.remove('show');
+  updateStats();
+  toast('❌ Donation cancelled','err');
+  renderPage(document.querySelector('.sb-link.active')?.textContent?.trim()||'dashboard');
+  cancelIdx=-1;
+}
+
+function renderDashboard(){
+  var d=getDon();
+  var recent=d.slice(-5).reverse();
+  var tb=document.getElementById('recent-tbody');
+  if(!recent.length){tb.innerHTML='<tr><td colspan="9" class="empty"><div class="ei">📭</div>No donations yet</td></tr>';return;}
+  tb.innerHTML=recent.map(function(x,i){
+    var realIdx=d.findIndex(function(a){return a.id===x.id;});
+    return '<tr><td style="color:#aaa;font-size:.75rem;font-weight:600">'+( i+1)+'</td><td><b>'+x.name+'</b></td><td>'+x.food+'</td><td class="col-qty">'+x.quantity+'</td><td><a href="tel:'+x.phoneno+'" style="color:var(--green);text-decoration:none;">'+x.phoneno+'</a></td><td>'+x.address+'</td><td>'+x.datetime+'</td><td>'+badgeHtml(x.status)+'</td><td>'+actionBtns(x,realIdx)+'</td></tr>';
+  }).join('');
+}
+
+function renderDonations(){
+  var d=getDon();
+  var search=(document.getElementById('don-search')||{}).value||'';
+  var status=(document.getElementById('don-status')||{}).value||'';
+  var loc=(document.getElementById('don-loc')||{}).value||'';
+
+  // Populate locations
+  var locs=[...new Set(d.map(function(x){return x.district;}).filter(Boolean))];
+  var sel=document.getElementById('don-loc');
+  if(sel){ var cur=sel.value; sel.innerHTML='<option value="">All Locations</option>'+locs.map(function(l){return '<option value="'+l+'"'+(l===cur?' selected':'')+'>'+l+'</option>';}).join(''); if(cur) sel.value=cur; }
+
+  var filtered=d.filter(function(x){
+    var matchS=!search||(x.name&&x.name.toLowerCase().includes(search.toLowerCase()))||(x.food&&x.food.toLowerCase().includes(search.toLowerCase()))||(x.phoneno&&x.phoneno.includes(search));
+    var matchSt=!status||x.status===status;
+    var matchL=!loc||x.district===loc;
+    return matchS&&matchSt&&matchL;
+  });
+
+  var tb=document.getElementById('don-tbody');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="11"><div class="empty"><div class="ei">🔍</div>No donations found</div></td></tr>';return;}
+  tb.innerHTML=filtered.map(function(x,i){
+    var realIdx=d.findIndex(function(a){return a.id===x.id;});
+    var typeBadge='<span class="badge '+(x.type==='veg'?'veg':'nonveg')+'">'+(x.type==='veg'?'🌿 Veg':'🍗 Non-Veg')+'</span>';
+    return '<tr><td style="color:#aaa;font-size:.75rem;font-weight:600">'+(i+1)+'</td><td><b>'+x.name+'</b></td><td>'+x.food+'</td><td>'+typeBadge+'</td><td class="col-qty">'+x.quantity+'</td><td><a href="tel:'+x.phoneno+'" style="color:var(--green);text-decoration:none;">'+x.phoneno+'</a></td><td style="max-width:140px;font-size:.72rem">'+x.address+'</td><td style="white-space:nowrap">'+x.datetime+'</td><td>'+badgeHtml(x.status)+'</td><td style="color:#888;font-size:.72rem">'+(x.takenBy||'—')+'</td><td>'+actionBtns(x,realIdx)+'</td></tr>';
+  }).join('');
+}
+
+function renderFiltered(status,tbId,showAssign,noAction){
+  var d=getDon();
+  var filtered=d.filter(function(x){return x.status===status;});
+  var tb=document.getElementById(tbId);
+  if(!tb) return;
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="ei">📭</div>No '+status+' donations</div></td></tr>';return;}
+  tb.innerHTML=filtered.map(function(x,i){
+    var realIdx=d.findIndex(function(a){return a.id===x.id;});
+    if(noAction){
+      return '<tr><td style="color:#aaa;font-size:.75rem;font-weight:600">'+(i+1)+'</td><td><b>'+x.name+'</b></td><td>'+x.food+'</td><td class="col-qty">'+x.quantity+'</td><td>'+(x.takenBy||'—')+'</td><td>'+x.address+'</td><td>'+(x.deliveredAt||x.datetime)+'</td></tr>';
+    }
+    var acts=actionBtns(x,realIdx);
+    if(status==='in-delivery'){
+      return '<tr><td style="color:#aaa;font-size:.75rem;font-weight:600">'+(i+1)+'</td><td><b>'+x.name+'</b></td><td>'+x.food+'</td><td class="col-qty">'+x.quantity+'</td><td><span style="color:var(--orange);font-weight:700">'+(x.takenBy||'—')+'</span></td><td>'+x.address+'</td><td>'+x.datetime+'</td><td>'+acts+'</td></tr>';
+    }
+    return '<tr><td style="color:#aaa;font-size:.75rem;font-weight:600">'+(i+1)+'</td><td><b>'+x.name+'</b></td><td>'+x.food+'</td><td class="col-qty">'+x.quantity+'</td><td><a href="tel:'+x.phoneno+'" style="color:var(--green);text-decoration:none;">'+x.phoneno+'</a></td><td>'+x.address+'</td><td>'+x.datetime+'</td><td>'+acts+'</td></tr>';
+  }).join('');
+}
+
+function renderCancelled(){
+  var d=getDon();
+  var filtered=d.filter(function(x){return x.status==='cancelled';});
+  var tb=document.getElementById('cancelled-tbody');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="ei">✅</div>No cancelled donations</div></td></tr>';return;}
+  tb.innerHTML=filtered.map(function(x,i){
+    var realIdx=d.findIndex(function(a){return a.id===x.id;});
+    return '<tr><td style="color:#aaa;font-size:.75rem;font-weight:600">'+(i+1)+'</td><td><b>'+x.name+'</b></td><td>'+x.food+'</td><td class="col-qty">'+x.quantity+'</td><td>'+x.phoneno+'</td><td style="color:#e53935">'+(x.cancelReason||'—')+'</td><td>'+(x.cancelledAt||'—')+'</td><td><button class="ab green" onclick="restoreDon('+realIdx+')">Restore ↩</button></td></tr>';
+  }).join('');
+}
+
+function restoreDon(idx){
+  var d=getDon();
+  d[idx].status='assigned';
+  delete d[idx].cancelledAt;
+  delete d[idx].cancelReason;
+  saveDon(d);
+  updateStats();
+  toast('↩ Donation restored!');
+  renderCancelled();
+}
+
+function renderUsers(){
+  var u=getUsers();
+  var d=getDon();
+  var search=(document.getElementById('user-search')||{}).value||'';
+  var filtered=u.filter(function(x){return !search||(x.name&&x.name.toLowerCase().includes(search.toLowerCase()))||(x.email&&x.email.toLowerCase().includes(search.toLowerCase()));});
+  var tb=document.getElementById('users-tbody');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="ei">👥</div>No registered users yet</div></td></tr>';return;}
+  tb.innerHTML=filtered.map(function(x,i){
+    var donCount=d.filter(function(dn){return dn.name&&dn.name.toLowerCase()===x.name.toLowerCase();}).length;
+    return '<tr><td style="color:#aaa">'+(i+1)+'</td><td><b>'+x.name+'</b></td><td>'+x.email+'</td><td>'+(x.gender||'—')+'</td><td><span style="color:var(--green);font-weight:700">'+donCount+' donation'+(donCount!==1?'s':'')+'</span></td><td style="color:#888;font-size:.72rem">Recently</td></tr>';
+  }).join('');
+}
+
+function renderAgents(){
+  var d=getDon();
+  var regAgents=JSON.parse(localStorage.getItem('deliveryAgents')||'[]');
+  var agentMap={};
+  // Add registered agents first
+  regAgents.forEach(function(a){ agentMap[a.name.split(' ')[0].toLowerCase()]={taken:0,delivered:0,inProgress:0,name:a.name,vehicle:a.vehicle||'N/A',area:a.area||'N/A',phone:a.phone||'—'}; });
+  d.forEach(function(x){
+    if(x.takenBy){
+      if(!agentMap[x.takenBy]) agentMap[x.takenBy]={taken:0,delivered:0,inProgress:0};
+      agentMap[x.takenBy].taken++;
+      if(x.status==='delivered') agentMap[x.takenBy].delivered++;
+      if(x.status==='in-delivery') agentMap[x.takenBy].inProgress++;
+    }
+  });
+  var agents=Object.keys(agentMap);
+  var tb=document.getElementById('agents-tbody');
+  if(!agents.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="ei">🛵</div>No delivery agents yet</div></td></tr>';return;}
+  tb.innerHTML=agents.map(function(name,i){
+    var a=agentMap[name];
+    var isActive=a.inProgress>0;
+    var dispName=a.name||(name.charAt(0).toUpperCase()+name.slice(1));
+    return '<tr><td style="color:#aaa">'+(i+1)+'</td><td><b>🛵 '+dispName+'</b><br><span style="color:#aaa;font-size:.7rem">'+(a.phone||'')+'</span></td><td>'+(a.vehicle||'—')+'</td><td>'+(a.area||'—')+'</td><td>'+a.taken+'</td><td><span style="color:var(--green);font-weight:700">'+a.delivered+'</span></td><td><span style="color:var(--orange);font-weight:700">'+a.inProgress+'</span></td><td><span class="badge '+(isActive?'assigned':'offline')+'">'+(isActive?'🟢 Active':'⚫ Idle')+'</span></td></tr>';
+  }).join('');
+}
+
+function renderFeedbacks(){
+  var fb=getFb().slice().reverse();
+  var el=document.getElementById('fb-list');
+  if(!fb.length){el.innerHTML='<div class="empty"><div class="ei">💬</div>No feedbacks yet</div>';return;}
+  el.innerHTML=fb.map(function(f){
+    return '<div style="border:1px solid #f0f0f0;border-radius:10px;padding:14px 18px;margin-bottom:10px;border-left:3px solid var(--green)"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b style="font-size:.88rem">'+f.name+'</b><span style="font-size:.72rem;color:#aaa">'+(f.time||'')+'</span></div><div style="font-size:.75rem;color:#888;margin-bottom:6px">📧 '+f.email+(f.subject?' &nbsp;•&nbsp; '+f.subject:'')+'</div><div style="font-size:.85rem;color:#555">'+f.message+'</div></div>';
+  }).join('');
+}
+
+// INIT
+initData();
+updateStats();
+renderDashboard();
+
+// Auto-refresh every 10 seconds (simulate live data)
+setInterval(function(){
+  updateStats();
+  var active=document.querySelector('.sb-link.active');
+  if(active && document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+},10000);
+</script>
+</body>
+</html>

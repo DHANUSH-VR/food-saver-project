@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Saver - Food Saver</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --green: #06C167; --dark-green: #048a48; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Poppins', sans-serif; background: var(--green); min-height: 100vh; padding: 20px; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 30px; background: #fff; border-radius: 12px; margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+  .logo { font-size: 1.4rem; font-weight: 800; }
+  .logo b { color: var(--green); }
+  nav a { text-decoration: none; color: #333; font-weight: 500; margin-left: 20px; font-size: 0.9rem; }
+  nav a:hover { color: var(--green); }
+
+  .form-card {
+    background: #fff; border-radius: 20px; padding: 40px;
+    max-width: 540px; margin: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .form-title { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 28px; }
+  .form-title b { color: var(--green); }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 0.85rem; color: #555; font-weight: 600; margin-bottom: 6px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #e0e0e0;
+    border-radius: 8px; font-size: 0.95rem; font-family: 'Poppins', sans-serif;
+    outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  /* Meal type radio */
+  .radio-group { display: flex; gap: 20px; margin-top: 8px; }
+  .radio-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: #555; }
+  .radio-group input { accent-color: var(--green); width: 16px; height: 16px; }
+
+  /* Category cards */
+  .category-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+  .cat-card {
+    border: 2px solid #e0e0e0; border-radius: 10px; padding: 12px 18px;
+    cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #555;
+    transition: all 0.2s; background: #f9f9f9;
+  }
+  .cat-card:hover, .cat-card.selected { border-color: var(--green); background: rgba(6,193,103,0.08); color: var(--green); }
+  .cat-card .cat-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+
+  .submit-btn {
+    width: 100%; padding: 14px; background: var(--green); color: #fff;
+    border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; font-family: 'Poppins', sans-serif; margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .submit-btn:hover { background: var(--dark-green); }
+
+  /* Success */
+  .success-screen { display: none; text-align: center; padding: 40px 20px; }
+  .success-screen.show { display: block; }
+  .success-screen .icon { font-size: 5rem; margin-bottom: 20px; }
+  .success-screen h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+  .success-screen p { color: #555; margin-bottom: 24px; }
+  .success-screen a { color: var(--green); font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Food <b>Saver</b></div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="d-ngo.html">D NGO</a><a href="contact.html">Contact</a>
+    <a href="profile.html">My Donations</a>
+  </nav>
+</header>
+
+<div class="form-card">
+  <div id="formContent">
+    <h2 class="form-title">Food <b>Saver</b></h2>
+
+    <form onsubmit="submitDonation(event)">
+      <div class="field">
+        <label>Food Name:</label>
+        <input type="text" id="foodName" placeholder="e.g. Rice, Biryani, Dosa..." required/>
+      </div>
+
+      <div class="field">
+        <label>Meal Type:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="mealtype" value="veg" required/> Veg</label>
+          <label><input type="radio" name="mealtype" value="non-veg"/> Non-veg</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Select the Category:</label>
+        <div class="category-grid">
+          <div class="cat-card" onclick="selectCategory(this, 'raw-food')">
+            <span class="cat-icon">🌾</span>Raw Food
+          </div>
+          <div class="cat-card" onclick="selectCategory(this, 'cooked-food')">
+            <span class="cat-icon">🍛</span>Cooked Food
+          </div>
+          <div class="cat-card" onclick="selectCategory(this, 'packed-food')">
+            <span class="cat-icon">📦</span>Packed Food
+          </div>
+        </div>
+        <input type="hidden" id="category" required/>
+      </div>
+
+      <div class="field">
+        <label>Quantity (number of persons / kg):</label>
+        <input type="text" id="quantity" placeholder="e.g. 10 persons or 5 kg" required/>
+      </div>
+
+      <div class="field">
+        <label>Your Name:</label>
+        <input type="text" id="donorName" placeholder="Full name" required/>
+      </div>
+
+      <div class="field">
+        <label>Phone No:</label>
+        <input type="tel" id="phoneNo" placeholder="Mobile number" required/>
+      </div>
+
+      <div class="field">
+        <label>District:</label>
+        <select id="district" required>
+          <option value="">Select District</option>
+          <option>Bangalore</option><option>Bhubaneswar</option><option>Cuttack</option>
+          <option>Puri</option><option>Madurai</option><option>Chennai</option>
+          <option>Mumbai</option><option>Delhi</option><option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Address:</label>
+        <textarea id="address" placeholder="Full pickup address" required></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit Donation</button>
+    </form>
+  </div>
+
+  <!-- Success Screen -->
+  <div class="success-screen" id="successScreen">
+    <div class="icon">🎉</div>
+    <h2>Thank You!</h2>
+    <p>Your donation has been submitted successfully.<br>It will be immediately collected and sent to needy people.</p>
+    <a href="index.html">← Return to Home Page</a>
+  </div>
+</div>
+
+<script>
+let selectedCategory = '';
+function selectCategory(el, value) {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCategory = value;
+  document.getElementById('category').value = value;
+}
+
+function submitDonation(e) {
+  e.preventDefault();
+  if (!selectedCategory) { alert('Please select a category'); return; }
+  const donation = {
+    id: Date.now(),
+    food: document.getElementById('foodName').value,
+    type: document.querySelector('input[name="mealtype"]:checked').value,
+    category: selectedCategory,
+    quantity: document.getElementById('quantity').value,
+    name: document.getElementById('donorName').value,
+    phoneno: document.getElementById('phoneNo').value,
+    district: document.getElementById('district').value,
+    address: document.getElementById('address').value,
+    datetime: new Date().toLocaleString(),
+    status: 'assigned',
+    deliveryTo: 'D NGO, KalyanNagar, Bangalore'
+  };
+  const donations = JSON.parse(localStorage.getItem('donations') || '[]');
+  donations.push(donation);
+  localStorage.setItem('donations', JSON.stringify(donations));
+  document.getElementById('formContent').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+}
+</script>
+
+
+
+<script>
+// Role-based nav update
+(function(){
+  var isAdmin = localStorage.getItem('adminLogged');
+  var isDel = localStorage.getItem('deliveryPerson');
+  var isUser = localStorage.getItem('loggedUser');
+  document.addEventListener('DOMContentLoaded', function(){
+    var nav = document.querySelector('nav');
+    if(!nav) return;
+    if(isAdmin){
+      var db = document.createElement('a');
+      db.href='admin-dashboard.html';
+      db.setAttribute('style','background:#111;color:#fff;padding:7px 14px;border-radius:8px;font-weight:700;font-size:.8rem;text-decoration:none;');
+      db.textContent='⚙️ Dashboard';
+      nav.appendChild(db);
+      var lo=document.createElement('a');
+      lo.href='#'; lo.setAttribute('style','color:#e53935;font-size:.8rem;font-weight:600;text-decoration:none;padding:7px 10px;');
+      lo.textContent='Logout';
+      lo.onclick=function(e){e.preventDefault();localStorage.removeItem('adminLogged');location.href='index.html';};
+      nav.appendChild(lo);
+    } else if(isDel){
+      var db=document.createElement('a');
+      db.href='delivery-login.html';
+      db.setAttribute('style','background:#FF6B00;color:#fff;padding:7px 14px;border-radius:8px;font-weight:700;font-size:.8rem;text-decoration:none;');
+      db.textContent='🛵 My Dashboard';
+      nav.appendChild(db);
+      var lo=document.createElement('a');
+      lo.href='#'; lo.setAttribute('style','color:#e53935;font-size:.8rem;font-weight:600;text-decoration:none;padding:7px 10px;');
+      lo.textContent='Logout';
+      lo.onclick=function(e){e.preventDefault();localStorage.removeItem('deliveryPerson');location.href='index.html';};
+      nav.appendChild(lo);
+    } else if(isUser){
+      var u=JSON.parse(isUser);
+      var lo=document.createElement('a');
+      lo.href='#'; lo.setAttribute('style','color:#e53935;font-size:.8rem;font-weight:600;text-decoration:none;padding:7px 10px;');
+      lo.textContent='Logout';
+      lo.onclick=function(e){e.preventDefault();localStorage.removeItem('loggedUser');location.href='index.html';};
+      nav.appendChild(lo);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

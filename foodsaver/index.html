@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Saver - Fight Hunger, Stop Waste</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--green:#06C167;--dg:#048a48;--black:#111;--gray:#f7f7f7;--muted:#777}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Poppins',sans-serif;color:#2d2d2d;overflow-x:hidden}
+
+  /* HEADER */
+  header{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:70px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);box-shadow:0 1px 20px rgba(0,0,0,.08)}
+  .logo{font-size:1.6rem;font-weight:900;color:var(--black);letter-spacing:-.5px;text-decoration:none}
+  .logo b{color:var(--green)}
+  nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  nav a{text-decoration:none;color:#555;font-weight:500;font-size:.88rem;padding:7px 14px;border-radius:8px;transition:.2s}
+  nav a:hover{background:rgba(6,193,103,.08);color:var(--green)}
+  nav a.active{color:var(--green);font-weight:700}
+  .nav-donate{background:var(--green)!important;color:#fff!important;font-weight:700!important;border-radius:10px!important}
+  .nav-donate:hover{background:var(--dg)!important}
+  .nav-admin{background:#111!important;color:#fff!important;font-weight:700!important;border-radius:10px!important;font-size:.8rem!important}
+  .nav-delivery{background:#FF6B00!important;color:#fff!important;font-weight:700!important;border-radius:10px!important;font-size:.8rem!important}
+  .nav-logout{color:#e53935!important;font-size:.8rem!important;font-weight:600!important}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+  .hamburger span{display:block;width:24px;height:2.5px;background:#333;border-radius:2px}
+
+  /* HERO */
+  .hero{min-height:100vh;padding-top:70px;display:flex;align-items:center;background:linear-gradient(135deg,#0a0a0a,#1a2a1a,#0d1f0d);position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&q=80&auto=format&fit=crop') center/cover;opacity:.18}
+  .hero-content{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:80px 48px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(6,193,103,.15);border:1px solid rgba(6,193,103,.3);color:var(--green);padding:6px 16px;border-radius:30px;font-size:.8rem;font-weight:600;margin-bottom:24px}
+  .hero-tag::before{content:'●';font-size:.5rem;animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .hero h1{font-size:clamp(2.4rem,5vw,3.8rem);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-1px;margin-bottom:20px}
+  .hero h1 .ac{color:var(--green)}
+  .hero p{color:rgba(255,255,255,.7);font-size:1.05rem;line-height:1.7;margin-bottom:36px;max-width:480px}
+  .hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+  .btn-p{background:var(--green);color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:.95rem;transition:.2s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(6,193,103,.35)}
+  .btn-p:hover{background:var(--dg);transform:translateY(-2px)}
+  .btn-o{background:rgba(255,255,255,.08);color:#fff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:600;font-size:.95rem;border:1.5px solid rgba(255,255,255,.2);transition:.2s}
+  .btn-o:hover{background:rgba(255,255,255,.15)}
+  .hero-right{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .sc{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;transition:.3s}
+  .sc:hover{transform:translateY(-4px)}
+  .sc:first-child{grid-column:span 2;background:rgba(6,193,103,.15);border-color:rgba(6,193,103,.3)}
+  .sc .num{font-size:2.4rem;font-weight:900;color:#fff;line-height:1;margin-bottom:6px}
+  .sc .num span{color:var(--green)}
+  .sc .lbl{color:rgba(255,255,255,.6);font-size:.82rem}
+  .sc .ic{font-size:1.8rem;margin-bottom:12px}
+
+  /* TICKER */
+  .ticker{background:var(--green);padding:14px 0;overflow:hidden}
+  .ticker-inner{display:flex;gap:60px;animation:tick 25s linear infinite;white-space:nowrap}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .ticker-item{color:#fff;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:10px}
+  .ticker-item::before{content:'★';opacity:.7}
+
+  /* SECTIONS */
+  .sec{padding:90px 48px;max-width:1200px;margin:0 auto}
+  .sec-hdr{text-align:center;margin-bottom:60px}
+  .sec-tag{display:inline-block;background:rgba(6,193,103,.1);color:var(--green);padding:6px 16px;border-radius:30px;font-size:.78rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+  .sec-title{font-size:clamp(1.8rem,3vw,2.6rem);font-weight:800;color:var(--black);line-height:1.2}
+  .sec-sub{color:var(--muted);font-size:1rem;margin-top:12px;max-width:500px;margin-left:auto;margin-right:auto}
+
+  /* HOW IT WORKS */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative}
+  .steps::before{content:'';position:absolute;top:36px;left:12%;right:12%;height:2px;background:linear-gradient(to right,transparent,var(--green),transparent);z-index:0}
+  .step{text-align:center;position:relative;z-index:1}
+  .step-num{width:72px;height:72px;background:var(--green);color:#fff;border-radius:50%;font-size:1.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 24px rgba(6,193,103,.3);transition:.3s}
+  .step:hover .step-num{transform:scale(1.12)}
+  .step h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+  .step p{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+  /* ROLES SECTION */
+  .role-card:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(0,0,0,.12)}
+  .role-card.user .role-icon{background:rgba(6,193,103,.1)}
+  .role-card.delivery .role-icon{background:rgba(255,107,0,.1)}
+  .role-card.admin .role-icon{background:rgba(0,0,0,.06)}
+  .role-top h3{font-size:1.15rem;font-weight:800;margin-bottom:12px}
+  .role-top p{font-size:.85rem;color:var(--muted);line-height:1.7}
+  .role-card.user .role-btn{background:var(--green);color:#fff}
+  .role-card.delivery .role-btn{background:#FF6B00;color:#fff}
+  .role-card.admin .role-btn{background:#111;color:#fff}
+
+  /* PROBLEM */
+  .prob-sec{background:#0d1a0d;padding:90px 0}
+  .prob-inner{max-width:1200px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .prob-left .sec-title{color:#fff}
+  .prob-left .sec-sub{color:rgba(255,255,255,.6);text-align:left;margin:12px 0 32px}
+  .pstats{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .pstat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px}
+  .pstat .big{font-size:2rem;font-weight:900;color:var(--green)}
+  .pstat .desc{font-size:.8rem;color:rgba(255,255,255,.6);margin-top:4px;line-height:1.4}
+  .prob-right{display:flex;flex-direction:column;gap:16px}
+  .prob-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px 24px;display:flex;gap:16px;align-items:flex-start;transition:.3s}
+  .prob-card:hover{border-color:rgba(6,193,103,.3);background:rgba(6,193,103,.06)}
+  .prob-card .pc-ic{font-size:1.8rem;flex-shrink:0}
+  .prob-card h4{color:#fff;font-size:.95rem;font-weight:700;margin-bottom:4px}
+  .prob-card p{color:rgba(255,255,255,.55);font-size:.82rem;line-height:1.5}
+
+  /* IMPACT */
+  .imp-sec{padding:90px 48px;background:var(--green)}
+  .imp-inner{max-width:1200px;margin:0 auto;text-align:center}
+  .imp-inner h2{font-size:2.4rem;font-weight:900;color:#fff;margin-bottom:12px}
+  .imp-inner p{color:rgba(255,255,255,.75);margin-bottom:50px}
+  .imp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .imp-num{background:rgba(255,255,255,.12);border-radius:16px;padding:32px 20px}
+  .imp-num .big{font-size:3rem;font-weight:900;color:#fff;line-height:1}
+  .imp-num .desc{color:rgba(255,255,255,.7);font-size:.85rem;margin-top:8px}
+
+  /* GALLERY */
+  .gal-sec{padding:90px 48px}
+  .gal-inner{max-width:1200px;margin:0 auto}
+  .gal-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:200px 200px;gap:16px;margin-top:50px;border-radius:20px;overflow:hidden}
+  .gal-item{overflow:hidden;position:relative}
+  .gal-item:first-child{grid-row:span 2}
+  .gal-item img{width:100%;height:100%;object-fit:cover;object-position:center;transition:.4s;background:#e8f5e9}
+  .gal-item:hover img{transform:scale(1.06)}
+  .gal-item .ov{position:absolute;inset:0;background:rgba(6,193,103,0);transition:.3s}
+  .gal-item:hover .ov{background:rgba(6,193,103,.2)}
+
+  /* PICKUP */
+  .pickup-sec{padding:90px 48px}
+  .pickup-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+  .pickup-text h2{font-size:2rem;font-weight:900;margin-bottom:16px}
+  .pickup-text h2 span{color:var(--green)}
+  .pickup-text p{color:var(--muted);line-height:1.7;margin-bottom:24px}
+  .pickup-steps{list-style:none}
+  .pickup-steps li{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid #f0f0f0}
+  .pickup-steps li .sn{width:28px;height:28px;background:var(--green);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0}
+  .pickup-steps li .st{font-size:.88rem;color:#555;line-height:1.5}
+  .pickup-vis{text-align:center}
+  .pickup-vis .big-icon{font-size:10rem;animation:float 3s ease-in-out infinite;display:block}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+
+  /* FUTURE */
+  .fut-sec{padding:90px 48px;background:var(--gray)}
+  .fut-inner{max-width:1200px;margin:0 auto}
+  .fut-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:50px}
+  .fut-card{background:#fff;border-radius:16px;padding:28px;border-left:4px solid var(--green);transition:.3s;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+  .fut-card:hover{transform:translateX(4px);box-shadow:0 8px 30px rgba(0,0,0,.08)}
+  .fut-card .fi{font-size:2rem;margin-bottom:14px}
+  .fut-card h4{font-size:.95rem;font-weight:700;margin-bottom:8px}
+  .fut-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+
+  /* CTA */
+  .cta-sec{padding:90px 48px;background:#0d1a0d;text-align:center}
+  .cta-sec h2{font-size:2.6rem;font-weight:900;color:#fff;margin-bottom:16px}
+  .cta-sec p{color:rgba(255,255,255,.6);margin-bottom:36px;font-size:1.05rem}
+  .cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .btn-white{background:#fff;color:var(--black);text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:.95rem;transition:.2s}
+  .btn-white:hover{background:#f0f0f0}
+
+  /* FOOTER */
+  footer{background:#0a0a0a;padding:60px 48px 30px}
+  .foot-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+  .foot-brand .flogo{font-size:1.4rem;color:#fff;font-weight:900;margin-bottom:14px;display:block}
+  .foot-brand .flogo b{color:var(--green)}
+  .foot-brand p{color:#666;font-size:.85rem;line-height:1.7;max-width:260px;margin-bottom:20px}
+  .foot-col h4{color:#fff;font-weight:700;margin-bottom:16px;font-size:.9rem}
+  .foot-col a{display:block;color:#666;text-decoration:none;font-size:.85rem;margin-bottom:10px;transition:.2s}
+  .foot-col a:hover{color:var(--green)}
+  .foot-col p{color:#666;font-size:.85rem;margin-bottom:8px}
+  .soc-links{display:flex;gap:10px}
+  .soc-btn{width:36px;height:36px;background:rgba(255,255,255,.05);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:.2s;text-decoration:none}
+  .soc-btn:hover{background:var(--green)}
+  .foot-bot{max-width:1200px;margin:0 auto;padding-top:24px;border-top:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  .foot-bot p{color:#444;font-size:.8rem}
+
+  /* MODAL */
+  .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  .modal-ov.show{display:flex}
+  .modal{background:#fff;border-radius:24px;padding:44px 38px;width:360px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.3);animation:min .3s ease}
+  @keyframes min{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal-logo{font-size:1.5rem;font-weight:900;margin-bottom:4px}
+  .modal-logo span{color:var(--green)}
+  .modal-sub{color:var(--muted);font-size:.9rem;margin-bottom:28px}
+  .m-btn{display:flex;align-items:center;gap:14px;width:100%;padding:14px 18px;border:2px solid #eee;border-radius:12px;margin-bottom:12px;cursor:pointer;text-decoration:none;transition:.2s;font-family:'Poppins',sans-serif;font-size:.9rem;font-weight:600;color:#333;background:#fff}
+  .m-btn:hover{border-color:var(--green);background:rgba(6,193,103,.04)}
+  .m-btn .mi{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+  .m-btn.user .mi{background:rgba(6,193,103,.12)}
+  .m-btn.admin .mi{background:rgba(0,0,0,.06)}
+  .m-btn.delivery .mi{background:rgba(255,107,0,.12)}
+  .m-btn .mr{text-align:left}
+  .m-btn .mr small{display:block;color:#aaa;font-weight:400;font-size:.75rem}
+  .m-close{background:none;border:none;color:#bbb;cursor:pointer;font-size:.85rem;margin-top:8px;font-family:'Poppins',sans-serif}
+
+  @media(max-width:900px){
+    header{padding:0 20px}
+    nav{display:none;position:fixed;top:70px;left:0;right:0;background:#fff;flex-direction:column;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.1);gap:4px;z-index:999}
+    nav.open{display:flex}
+    .hamburger{display:flex}
+    .hero-content,.prob-inner,.pickup-inner{grid-template-columns:1fr;padding:60px 24px}
+    .hero-right{display:none}
+    .sec,.roles-sec,.imp-sec,.gal-sec,.fut-sec,.cta-sec,.pickup-sec{padding:60px 24px}
+    .steps,.roles-grid,.imp-grid,.fut-grid{grid-template-columns:1fr 1fr}
+    .gal-grid{grid-template-columns:1fr 1fr;grid-template-rows:160px 160px}
+    .gal-item:first-child{grid-row:span 1}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:28px}
+  }
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-ov" id="loginModal">
+  <div class="modal">
+    <div class="modal-logo">Food<span>Saver</span></div>
+    <div class="modal-sub">Welcome! Choose your role</div>
+    <a href="user-signup.html" class="m-btn user"><div class="mi">👤</div><div class="mr">User<small>Donate food &amp; check donation status</small></div></a>
+    <a href="admin-login.html" class="m-btn admin"><div class="mi">🔐</div><div class="mr">Admin<small>Full dashboard &amp; management</small></div></a>
+    <a href="delivery-register.html" class="m-btn delivery"><div class="mi">🛵</div><div class="mr">Delivery Agent<small>View &amp; deliver food orders</small></div></a>
+    <button class="m-close" onclick="document.getElementById('loginModal').classList.remove('show')">Continue as guest →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header id="hdr">
+  <a href="index.html" class="logo">Food<b>Saver</b></a>
+  <button class="hamburger" onclick="document.getElementById('mnav').classList.toggle('open')"><span></span><span></span><span></span></button>
+  <nav id="mnav">
+    <a href="index.html" class="active">Home</a>
+    <a href="about.html">About</a>
+    <a href="d-ngo.html">D NGO</a>
+    <a href="contact.html">Contact</a>
+    <a href="profile.html">My Donations</a>
+    <a href="donate.html" class="nav-donate">🍱 Donate Now</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div>
+      <div class="hero-tag">Live Food Rescue Platform</div>
+      <h1>Fight <span class="ac">Hunger.</span><br>Stop <span class="ac">Waste.</span><br>Save Lives.</h1>
+      <p>Connect excess food from restaurants, hotels, weddings &amp; events to NGOs and people who need it most. Every meal saved is a life touched.</p>
+      <div class="hero-btns">
+        <a href="donate.html" class="btn-p">🍱 Donate Food Now</a>
+        <a href="about.html" class="btn-o">Learn More →</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="sc"><div class="ic">🌍</div><div class="num">1.3<span>B</span></div><div class="lbl">Tons of food wasted globally per year (FAO)</div></div>
+      <div class="sc"><div class="ic">😢</div><div class="num">20<span>%</span></div><div class="lbl">Population facing extreme food shortages (WHO)</div></div>
+      <div class="sc"><div class="ic">✅</div><div class="num">1<span>/3</span></div><div class="lbl">Of all food produced for humans is wasted</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker"><div class="ticker-inner">
+  <span class="ticker-item">Reduce Food Waste</span><span class="ticker-item">Feed the Needy</span><span class="ticker-item">Connect Donors with NGOs</span><span class="ticker-item">Door-to-Door Pickup</span><span class="ticker-item">D NGO — KalyanNagar</span><span class="ticker-item">100% Free Platform</span>
+  <span class="ticker-item">Reduce Food Waste</span><span class="ticker-item">Feed the Needy</span><span class="ticker-item">Connect Donors with NGOs</span><span class="ticker-item">Door-to-Door Pickup</span><span class="ticker-item">D NGO — KalyanNagar</span><span class="ticker-item">100% Free Platform</span>
+</div></div>
+
+<!-- PROBLEM -->
+<div class="prob-sec">
+  <div class="prob-inner">
+    <div class="prob-left">
+      <div class="sec-tag">The Problem</div>
+      <h2 class="sec-title" style="color:#fff">Why We <span style="color:var(--green)">Built</span> This</h2>
+      <p class="sec-sub" style="text-align:left;margin:12px 0 32px">At marriages, events & offices — people invite X guests but only Y attend. X always &gt; Y. Surplus food goes to waste while millions go hungry.</p>
+      <div class="pstats">
+        <div class="pstat"><div class="big">X &gt; Y</div><div class="desc">Guests invited vs attending — food always surplus</div></div>
+        <div class="pstat"><div class="big">~33%</div><div class="desc">Of all food produced never reaches a human mouth</div></div>
+        <div class="pstat"><div class="big">💰</div><div class="desc">Cost savings when food is redistributed efficiently</div></div>
+        <div class="pstat"><div class="big">🌿</div><div class="desc">Reduced carbon footprint from food in landfills</div></div>
+      </div>
+    </div>
+    <div class="prob-right">
+      <div class="prob-card"><div class="pc-ic">😩</div><div><h4>Existing System is Broken</h4><p>Donors had to personally visit organizations, call multiple NGOs — time-consuming and exhausting.</p></div></div>
+      <div class="prob-card"><div class="pc-ic">🚀</div><div><h4>Our Solution</h4><p>A seamless platform connecting donors, admin, and delivery agents — food collected and delivered within hours.</p></div></div>
+      <div class="prob-card"><div class="pc-ic">🤝</div><div><h4>Community Outcomes</h4><p>Decreases hunger rate. Food will not get wasted. NGOs, charities and needy individuals benefit directly.</p></div></div>
+      <div class="prob-card"><div class="pc-ic">📱</div><div><h4>Mobile Friendly</h4><p>Works on all devices — donate food from your phone in under 2 minutes, from anywhere.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div style="background:#fff;padding:90px 0">
+  <div class="sec" style="padding-top:0;padding-bottom:0">
+    <div class="sec-hdr"><div class="sec-tag">How It Works</div><h2 class="sec-title">Simple. Fast. Impactful.</h2><p class="sec-sub">From donation to delivery in 4 easy steps</p></div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>Register &amp; Login</h3><p>Create your account as User, Admin, or Delivery agent</p></div>
+      <div class="step"><div class="step-num">2</div><h3>Donate Food</h3><p>Fill the form with food name, type, quantity and pickup address</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Admin Reviews</h3><p>Admin manages donations — assigns to delivery agents</p></div>
+      <div class="step"><div class="step-num">4</div><h3>Door Pickup</h3><p>Agent collects food &amp; delivers to D NGO</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPACT -->
+<div class="imp-sec">
+  <div class="imp-inner">
+    <h2>Our Growing Impact</h2>
+    <p>Together we are making a real difference — one meal at a time</p>
+    <div class="imp-grid">
+      <div class="imp-num"><div class="big" id="cnt1">0+</div><div class="desc">Meals Rescued</div></div>
+      <div class="imp-num"><div class="big" id="cnt2">0+</div><div class="desc">Registered Users</div></div>
+      <div class="imp-num"><div class="big" id="cnt3">0+</div><div class="desc">NGOs Connected</div></div>
+      <div class="imp-num"><div class="big" id="cnt4">0+</div><div class="desc">Deliveries Done</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div class="gal-sec">
+  <div class="gal-inner">
+    <div class="sec-hdr"><div class="sec-tag">Our Works</div><h2 class="sec-title">Look what we can do together</h2></div>
+    <div class="gal-grid">
+      <div class="gal-item"><img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=85&auto=format&fit=crop" alt="Food" onerror="this.style.background='#06C167'"/><div class="ov"></div></div>
+      <div class="gal-item"><img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=500&q=85&auto=format&fit=crop" alt="Children" onerror="this.style.background='#048a48'"/><div class="ov"></div></div>
+      <div class="gal-item"><img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=500&q=85&auto=format&fit=crop" alt="Volunteer" onerror="this.style.background='#06C167'"/><div class="ov"></div></div>
+      <div class="gal-item"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=500&q=85&auto=format&fit=crop" alt="Community" onerror="this.style.background='#048a48'"/><div class="ov"></div></div>
+      <div class="gal-item"><img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&q=85&auto=format&fit=crop" alt="Food" onerror="this.style.background='#06C167'"/><div class="ov"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DOOR PICKUP -->
+<div class="pickup-sec">
+  <div class="pickup-inner">
+    <div class="pickup-text">
+      <h2>🚪 <span>Door Pickup</span> Service</h2>
+      <p>Our delivery volunteers come to your doorstep and collect the food — completely free of charge.</p>
+      <ul class="pickup-steps">
+        <li><div class="sn">1</div><div class="st">Fill the donation form with address and food details</div></li>
+        <li><div class="sn">2</div><div class="st">Admin reviews and assigns a delivery agent</div></li>
+        <li><div class="sn">3</div><div class="st">Delivery agent arrives at your location</div></li>
+        <li><div class="sn">4</div><div class="st">Food delivered fresh to D NGO</div></li>
+      </ul>
+    </div>
+    <div class="pickup-vis"><span class="big-icon">🛵</span><p style="color:var(--muted);font-size:.9rem;margin-top:16px">"Your donation will be immediately collected and sent to D NGO"</p></div>
+  </div>
+</div>
+
+<!-- FUTURE -->
+<div class="fut-sec">
+  <div class="fut-inner">
+    <div class="sec-hdr"><div class="sec-tag">Future Enhancement</div><h2 class="sec-title">What's Coming Next</h2></div>
+    <div class="fut-grid">
+      <div class="fut-card"><div class="fi">📱</div><h4>SMS / Email Alerts</h4><p>Real-time updates on donation status via automated SMS and email</p></div>
+      <div class="fut-card"><div class="fi">📍</div><h4>GPS Live Tracking</h4><p>Track your delivery agent in real-time on a map</p></div>
+      <div class="fut-card"><div class="fi">👕</div><h4>More Donation Types</h4><p>Expand to clothing, school supplies, household items</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-sec">
+  <h2>Ready to Make a Difference?</h2>
+  <p>Join donors, NGOs and volunteers fighting food waste across India</p>
+  <div class="cta-btns">
+    <a href="donate.html" class="btn-p">🍱 Start Donating Today</a>
+    <a href="user-signup.html" class="btn-white">Create Free Account</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <span class="flogo">Food<b>Saver</b></span>
+      <p>A community-driven platform to collect excess food and distribute to those in need. Powered by D NGO, KalyanNagar.</p>
+      <div class="soc-links"><a class="soc-btn" href="#">📘</a><a class="soc-btn" href="#">🐦</a><a class="soc-btn" href="#">📸</a></div>
+    </div>
+    <div class="foot-col">
+      <h4>Platform</h4>
+      <a href="index.html">Home</a><a href="about.html">About Us</a><a href="d-ngo.html">D NGO</a><a href="contact.html">Contact</a><a href="donate.html">Donate Food</a>
+    </div>
+    <div class="foot-col">
+      <h4>Login As</h4>
+      <a href="user-signup.html">User</a><a href="admin-login.html">Admin</a><a href="delivery-register.html">Delivery Agent</a>
+    </div>
+    <div class="foot-col">
+      <h4>Contact</h4>
+      <p>📧 <a href="mailto:laxtline@gmail.com" style="color:var(--green)">laxtline@gmail.com</a></p>
+      <p>📞 <a href="tel:9938649590" style="color:var(--green)">9938649590</a></p>
+      <p>📍 <a href="https://maps.app.goo.gl/FnqHK7cSqD4tz4d86" target="_blank" style="color:var(--green)">D NGO, KalyanNagar 🗺️</a></p>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <p>Food Saver © 2024 — Powered by D NGO, KalyanNagar, Bangalore</p>
+    <p>Made with ❤️ by D NGO</p>
+  </div>
+</footer>
+
+<script>
+// ROLE-BASED NAV
+(function(){
+  var isUser   = localStorage.getItem('loggedUser');
+  var isAdmin  = localStorage.getItem('adminLogged');
+  var isDel    = localStorage.getItem('deliveryPerson');
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var nav = document.getElementById('mnav');
+
+    if(isAdmin){
+      // Admin nav
+      nav.innerHTML = '<a href="index.html" class="active">Home</a><a href="about.html">About</a><a href="d-ngo.html">D NGO</a><a href="contact.html">Contact</a><a href="profile.html">Donation Status</a><a href="donate.html" class="nav-donate">🍱 Donate</a><a href="admin-dashboard.html" class="nav-admin">⚙️ Admin Dashboard</a><a href="#" class="nav-logout" onclick="localStorage.removeItem(\'adminLogged\');location.reload()">Logout</a>';
+    } else if(isDel){
+      // Delivery nav
+      var dname = isDel.charAt(0).toUpperCase()+isDel.slice(1);
+      nav.innerHTML = '<a href="index.html" class="active">Home</a><a href="about.html">About</a><a href="d-ngo.html">D NGO</a><a href="contact.html">Contact</a><a href="profile.html">Check Status</a><a href="donate.html" class="nav-donate">🍱 Donate</a><a href="delivery-login.html" class="nav-delivery">🛵 My Dashboard</a><a href="#" class="nav-logout" onclick="localStorage.removeItem(\'deliveryPerson\');location.reload()">Logout</a>';
+    } else if(isUser){
+      var u = JSON.parse(isUser);
+      nav.innerHTML = '<a href="index.html" class="active">Home</a><a href="about.html">About</a><a href="d-ngo.html">D NGO</a><a href="contact.html">Contact</a><a href="profile.html">📦 '+u.name+'</a><a href="donate.html" class="nav-donate">🍱 Donate Now</a><a href="#" class="nav-logout" onclick="localStorage.removeItem(\'loggedUser\');location.reload()">Logout</a>';
+    } else {
+      // Guest — show modal
+      document.getElementById('loginModal').classList.add('show');
+    }
+  });
+})();
+
+// Counters
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){
+      var d=JSON.parse(localStorage.getItem('donations')||'[]');
+      var u=JSON.parse(localStorage.getItem('users')||'[]');
+      function cnt(id,t,s){ var el=document.getElementById(id),c=0,st=Math.ceil(t/50); var ti=setInterval(function(){c=Math.min(c+st,t);el.textContent=c+s;if(c>=t)clearInterval(ti);},30); }
+      cnt('cnt1',Math.max(d.length*12+156,250),'+');
+      cnt('cnt2',Math.max(u.length+15,15),'+');
+      cnt('cnt3',8,'+');
+      cnt('cnt4',Math.max(d.filter(function(x){return x.status==='delivered';}).length+6,12),'+');
+      obs.disconnect();
+    }
+  });
+},{threshold:.3});
+var impSec=document.querySelector('.imp-sec');
+if(impSec) obs.observe(impSec);
+</script>
+</body>
+</html>

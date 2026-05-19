@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Dashboard - Food Saver</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--green:#06C167;--dg:#048a48;--orange:#FF6B00;--yellow:#FFB800;--blue:#3b82f6;--red:#ef4444;--bg:#0f0f0f;--card:#1a1a1a;--card2:#222;--border:#2a2a2a;--text:#fff;--muted:#888}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* ===== LOGIN PAGE ===== */
+  .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a0a0a,#0d1a0d)}
+  .login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:44px 40px;width:380px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .login-logo{text-align:center;margin-bottom:6px}
+  .login-logo .icon{font-size:3rem;margin-bottom:8px}
+  .login-logo h2{font-size:1.4rem;font-weight:900;color:#fff}
+  .login-logo h2 span{color:var(--green)}
+  .login-logo p{color:var(--muted);font-size:.82rem;margin-bottom:28px}
+  .lfield{margin-bottom:16px}
+  .lfield label{display:block;font-size:.78rem;color:var(--muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  .lfield input{width:100%;padding:13px 16px;background:#2a2a2a;border:1.5px solid var(--border);border-radius:10px;color:#fff;font-size:.92rem;font-family:'Poppins',sans-serif;outline:none;transition:.2s}
+  .lfield input:focus{border-color:var(--green)}
+  .lfield input::placeholder{color:#555}
+  .login-btn{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:1rem;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;margin-top:8px}
+  .login-btn:hover{background:var(--dg);transform:translateY(-1px)}
+  .login-hint{text-align:center;font-size:.75rem;color:#444;margin-top:14px}
+  .back-link{display:block;text-align:center;margin-top:14px;color:var(--muted);font-size:.8rem;text-decoration:none}
+  .back-link:hover{color:var(--green)}
+  .lerr{color:var(--red);font-size:.78rem;text-align:center;margin-top:8px;display:none}
+
+  /* ===== DASHBOARD ===== */
+  .dashboard{display:none;min-height:100vh;background:var(--bg)}
+
+  /* TOP BAR */
+  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .tb-left{display:flex;align-items:center;gap:16px}
+  .tb-logo{font-size:1.2rem;font-weight:900;color:#fff}
+  .tb-logo span{color:var(--green)}
+  .tb-badge{background:var(--green);color:#fff;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700}
+  .tb-right{display:flex;align-items:center;gap:12px}
+  .agent-info{text-align:right}
+  .agent-info .name{font-size:.88rem;font-weight:700;color:#fff}
+  .agent-info .status{font-size:.72rem;color:var(--green);display:flex;align-items:center;gap:4px;justify-content:flex-end}
+  .online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--green),var(--dg));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem}
+  .logout-tb{background:#2a2a2a;color:var(--muted);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s}
+  .logout-tb:hover{color:var(--red);border-color:var(--red)}
+
+  /* MAIN LAYOUT */
+  .dash-body{display:grid;grid-template-columns:320px 1fr;gap:0;min-height:calc(100vh - 62px)}
+
+  /* LEFT SIDEBAR */
+  .left-panel{background:var(--card);border-right:1px solid var(--border);padding:20px;overflow-y:auto}
+  .panel-title{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+
+  /* STATS ROW */
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+  .stat-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+  .stat-box .sv{font-size:1.6rem;font-weight:900;color:#fff;line-height:1}
+  .stat-box .sl{font-size:.68rem;color:var(--muted);margin-top:4px}
+  .stat-box.green-stat{border-color:rgba(6,193,103,.3);background:rgba(6,193,103,.07)}
+  .stat-box.green-stat .sv{color:var(--green)}
+  .stat-box.orange-stat{border-color:rgba(255,107,0,.3);background:rgba(255,107,0,.06)}
+  .stat-box.orange-stat .sv{color:var(--orange)}
+
+  /* ORDER CARDS (left) */
+  .order-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer;transition:.2s;position:relative}
+  .order-card:hover,.order-card.active{border-color:var(--green);background:rgba(6,193,103,.06)}
+  .order-card.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green);border-radius:3px 0 0 3px}
+  .oc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .oc-id{font-size:.7rem;font-weight:700;color:var(--muted)}
+  .oc-badge{padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700}
+  .oc-badge.new{background:rgba(6,193,103,.15);color:var(--green);border:1px solid rgba(6,193,103,.3)}
+  .oc-badge.picked{background:rgba(255,107,0,.15);color:var(--orange);border:1px solid rgba(255,107,0,.3)}
+  .oc-badge.done{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+  .oc-food{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:6px}
+  .oc-detail{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .oc-detail span{color:#ccc}
+  .oc-distance{font-size:.72rem;color:var(--yellow);font-weight:600}
+  .no-orders{text-align:center;padding:40px 20px;color:var(--muted)}
+  .no-orders .ni{font-size:2.5rem;margin-bottom:10px}
+
+  /* RIGHT PANEL */
+  .right-panel{padding:24px;overflow-y:auto}
+
+  /* MAP AREA */
+  .map-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;position:relative}
+  .map-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+  .map-header h3{font-size:.88rem;font-weight:700}
+  .map-header .live-badge{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700;display:flex;align-items:center;gap:4px}
+  .map-visual{height:200px;background:linear-gradient(135deg,#0d1f0d,#1a3a1a);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .map-grid{position:absolute;inset:0;opacity:.08;background-image:linear-gradient(var(--green) 1px,transparent 1px),linear-gradient(90deg,var(--green) 1px,transparent 1px);background-size:30px 30px}
+  .map-route{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70%;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .map-pin{text-align:center}
+  .map-pin .pin-icon{font-size:1.8rem}
+  .map-pin .pin-label{font-size:.65rem;color:rgba(255,255,255,.7);font-weight:600;margin-top:4px;background:rgba(0,0,0,.4);padding:2px 8px;border-radius:10px}
+  .route-line{flex:1;height:2px;background:linear-gradient(90deg,var(--orange),var(--green));border-radius:2px;position:relative}
+  .route-line::after{content:'🛵';position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:1.2rem;animation:ride 2s ease-in-out infinite alternate}
+  @keyframes ride{from{left:20%}to{left:80%}}
+  .map-footer{padding:12px 18px;display:flex;gap:16px}
+  .route-info{flex:1;text-align:center}
+  .route-info .ri-val{font-size:.92rem;font-weight:800;color:#fff}
+  .route-info .ri-label{font-size:.65rem;color:var(--muted);margin-top:2px}
+
+  /* ORDER DETAIL */
+  .detail-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px}
+  .detail-card h3{font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
+  .detail-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .detail-row:last-child{border-bottom:none}
+  .dr-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+  .dr-icon.pickup{background:rgba(255,107,0,.15)}
+  .dr-icon.drop{background:rgba(6,193,103,.12)}
+  .dr-icon.food{background:rgba(255,184,0,.12)}
+  .dr-icon.qty{background:rgba(59,130,246,.12)}
+  .dr-label{font-size:.7rem;color:var(--muted);margin-bottom:2px}
+  .dr-val{font-size:.88rem;font-weight:600;color:#fff;line-height:1.4}
+
+  /* ACTION BUTTONS */
+  .action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .act-btn{padding:14px;border:none;border-radius:12px;font-weight:800;font-size:.88rem;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .act-btn:hover{transform:translateY(-2px)}
+  .btn-accept{background:var(--green);color:#fff;box-shadow:0 4px 16px rgba(6,193,103,.3)}
+  .btn-accept:hover{background:var(--dg)}
+  .btn-pickup{background:var(--orange);color:#fff;box-shadow:0 4px 16px rgba(255,107,0,.25)}
+  .btn-deliver{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.25);grid-column:span 2}
+  .btn-deliver:hover{background:#2563eb}
+  .btn-disabled{background:#2a2a2a;color:#444;cursor:not-allowed}
+
+  /* DELIVERY ADDRESS CARD */
+  .surya-card{background:linear-gradient(135deg,rgba(6,193,103,.12),rgba(6,193,103,.05));border:1px solid rgba(6,193,103,.25);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+  .surya-card .sc-title{font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .surya-card .sc-name{font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px}
+  .surya-card .sc-addr{font-size:.8rem;color:rgba(255,255,255,.6);line-height:1.5}
+  .surya-card .sc-map{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:#fff;text-decoration:none;padding:7px 16px;border-radius:8px;font-size:.75rem;font-weight:700;margin-top:10px;transition:.2s}
+  .surya-card .sc-map:hover{background:var(--dg)}
+
+  /* EMPTY STATE */
+  .select-prompt{text-align:center;padding:60px 20px;color:var(--muted)}
+  .select-prompt .sp-icon{font-size:4rem;margin-bottom:16px;opacity:.4}
+  .select-prompt h3{font-size:1rem;font-weight:700;color:#555;margin-bottom:8px}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--green);color:#fff;padding:12px 24px;border-radius:12px;font-size:.85rem;font-weight:600;z-index:9999;display:none;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+  .toast.show{display:flex;align-items:center;gap:8px;animation:slideUp .3s ease}
+  @keyframes slideUp{from{bottom:0;opacity:0}to{bottom:24px;opacity:1}}
+
+  /* COMPLETED TAB */
+  .tab-row{display:flex;gap:8px;margin-bottom:16px}
+  .tab-btn{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s}
+  .tab-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+  @media(max-width:768px){
+    .dash-body{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+    .left-panel{max-height:320px}
+    .topbar{padding:0 14px}
+  }
+</style>
+</head>
+<body>
+  <!-- SITE NAV -->
+  <div id="siteNav" style="display:none;position:fixed;top:0;left:0;right:0;height:48px;background:#1a1a1a;display:flex;align-items:center;padding:0 18px;z-index:200;gap:6px;border-bottom:1px solid #2a2a2a;">
+    <a href="index.html" style="color:#fff;font-size:.95rem;font-weight:900;text-decoration:none;margin-right:10px;">Food<span style="color:#06C167;">Saver</span></a>
+    <a href="index.html" style="color:#aaa;font-size:.75rem;text-decoration:none;padding:4px 10px;border-radius:6px;transition:.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">🏠 Home</a>
+    <a href="donate.html" style="color:#aaa;font-size:.75rem;text-decoration:none;padding:4px 10px;border-radius:6px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">🍱 Donate</a>
+    <a href="profile.html" style="color:#aaa;font-size:.75rem;text-decoration:none;padding:4px 10px;border-radius:6px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">📦 Check Status</a>
+    <a href="d-ngo.html" style="color:#aaa;font-size:.75rem;text-decoration:none;padding:4px 10px;border-radius:6px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">🌟 D NGO</a>
+    <span style="margin-left:auto;background:#FF6B00;color:#fff;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700;">🛵 DELIVERY</span>
+  </div>
+
+<div class="toast" id="toast">✅ Action complete</div>
+
+<!-- ===== LOGIN REDIRECT ===== -->
+<div class="login-page" id="loginPage" style="text-align:center;">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">🛵</div>
+      <h2>Delivery <span>Agent</span></h2>
+      <p>Please login or create an account to continue</p>
+    </div>
+    <a href="delivery-register.html" style="display:block;width:100%;padding:14px;background:#FF6B00;color:#fff;border-radius:10px;font-weight:800;text-decoration:none;font-size:1rem;margin-bottom:12px;">Login / Create Account →</a>
+    <a href="index.html" class="back-link">← Back to Site</a>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="dashboard" id="dashboard">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo">Food<span>Saver</span></div>
+      <div class="tb-badge">🛵 DELIVERY</div>
+    </div>
+    <div class="tb-right">
+      <div class="agent-info">
+        <div class="name" id="agentName">Agent</div>
+        <div class="status"><div class="online-dot"></div> Online & Active</div>
+      </div>
+      <div class="avatar" id="agentAvatar">A</div>
+      <button class="logout-tb" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="dash-body">
+
+    <!-- LEFT: ORDER LIST -->
+    <div class="left-panel">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchTab('available',this)">📋 Available</button>
+        <button class="tab-btn" onclick="switchTab('mine',this)">🚚 My Orders</button>
+        <button class="tab-btn" onclick="switchTab('done',this)">✅ Done</button>
+      </div>
+
+      <div class="panel-title" id="listTitle">Available Pickups</div>
+
+      <div class="stats-row">
+        <div class="stat-box green-stat"><div class="sv" id="sAvail">0</div><div class="sl">Available</div></div>
+        <div class="stat-box orange-stat"><div class="sv" id="sDone">0</div><div class="sl">Delivered</div></div>
+      </div>
+
+      <div id="orderList">
+        <div class="no-orders"><div class="ni">📭</div><div>No orders yet</div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: DETAIL -->
+    <div class="right-panel" id="rightPanel">
+      <div class="select-prompt">
+        <div class="sp-icon">🗺️</div>
+        <h3>Select an order to view details</h3>
+        <p>Pick up food from donor and deliver to D NGO</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var currentAgent = '';
+var selectedOrderIdx = -1;
+var currentTab = 'available';
+
+var D_NGO = {
+  name: 'D NGO',
+  address: 'KalyanNagar, Bangalore',
+  mapUrl: 'https://maps.app.goo.gl/FnqHK7cSqD4tz4d86'
+};
+
+// Init sample donations if empty
+function initSampleData() {
+  if (!localStorage.getItem('donations')) {
+    var sample = [
+      {id:1,name:'Abinesh',food:'Rice',type:'veg',category:'cooked-food',phoneno:'8190958524',datetime:'2024-03-22 10:30',address:'Teppakulam, KalyanNagar',district:'KalyanNagar',quantity:'2 kg',status:'assigned'},
+      {id:2,name:'Kishor',food:'Biryani',type:'non-veg',category:'cooked-food',phoneno:'8903732696',datetime:'2024-03-22 11:00',address:'Main Road, KalyanNagar',district:'KalyanNagar',quantity:'5 members',status:'assigned'},
+    ];
+    localStorage.setItem('donations', JSON.stringify(sample));
+  }
+}
+
+function getDonations() { return JSON.parse(localStorage.getItem('donations') || '[]'); }
+function saveDonations(d) { localStorage.setItem('donations', JSON.stringify(d)); }
+
+function doLogin(e) {
+  e.preventDefault();
+  var email = document.getElementById('lem').value.trim();
+  currentAgent = email.split('@')[0];
+  localStorage.setItem('deliveryPerson', currentAgent);
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('siteNav').style.display = 'flex';
+  document.querySelector('.topbar').style.marginTop = '48px';
+  initDashboard();
+}
+
+function doLogout() {
+  localStorage.removeItem('deliveryPerson');
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+function initDashboard() {
+  document.getElementById('agentName').textContent = capitalize(currentAgent);
+  document.getElementById('agentAvatar').textContent = currentAgent.charAt(0).toUpperCase();
+  initSampleData();
+  renderList();
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+  var titles = { available: 'Available Pickups', mine: 'My Active Orders', done: 'Completed Deliveries' };
+  document.getElementById('listTitle').textContent = titles[tab];
+  selectedOrderIdx = -1;
+  document.getElementById('rightPanel').innerHTML = '<div class="select-prompt"><div class="sp-icon">🗺️</div><h3>Select an order</h3><p>Pick up food from donor → Deliver to D NGO</p></div>';
+  renderList();
+}
+
+function renderList() {
+  var all = getDonations();
+  var filtered;
+
+  if (currentTab === 'available') {
+    filtered = all.map(function(d,i){return{d:d,i:i};}).filter(function(x){ return x.d.status === 'assigned' && !x.d.takenBy; });
+  } else if (currentTab === 'mine') {
+    filtered = all.map(function(d,i){return{d:d,i:i};}).filter(function(x){ return x.d.takenBy === currentAgent && x.d.status !== 'delivered'; });
+  } else {
+    filtered = all.map(function(d,i){return{d:d,i:i};}).filter(function(x){ return x.d.takenBy === currentAgent && x.d.status === 'delivered'; });
+  }
+
+  // Update stats
+  var avail = all.filter(function(d){ return d.status==='assigned' && !d.takenBy; }).length;
+  var done = all.filter(function(d){ return d.takenBy===currentAgent && d.status==='delivered'; }).length;
+  document.getElementById('sAvail').textContent = avail;
+  document.getElementById('sDone').textContent = done;
+
+  var el = document.getElementById('orderList');
+  if (!filtered.length) {
+    el.innerHTML = '<div class="no-orders"><div class="ni">' + (currentTab==='done'?'🎉':'📭') + '</div><div>' + (currentTab==='available'?'No new orders':'No orders here') + '</div></div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(function(x) {
+    var d = x.d; var i = x.i;
+    var badgeCls = d.status==='delivered'?'done': d.takenBy?'picked':'new';
+    var badgeText = d.status==='delivered'?'✅ Delivered': d.takenBy?'🚚 Picked Up':'🆕 New';
+    var active = (selectedOrderIdx===i)?'active':'';
+    return '<div class="order-card ' + active + '" onclick="selectOrder(' + i + ')">' +
+      '<div class="oc-top"><span class="oc-id">#FD-' + String(d.id||i+1).padStart(4,'0') + '</span><span class="oc-badge ' + badgeCls + '">' + badgeText + '</span></div>' +
+      '<div class="oc-food">🍱 ' + d.food + '</div>' +
+      '<div class="oc-detail">👤 <span>' + d.name + '</span></div>' +
+      '<div class="oc-detail">📍 <span>' + (d.address||d.district||'N/A') + '</span></div>' +
+      '<div class="oc-detail">⏰ <span>' + d.datetime + '</span></div>' +
+      '<div class="oc-distance">📦 Deliver to: D NGO, KalyanNagar</div>' +
+    '</div>';
+  }).join('');
+}
+
+function selectOrder(idx) {
+  selectedOrderIdx = idx;
+  renderList(); // update active state
+  var all = getDonations();
+  var d = all[idx];
+  if (!d) return;
+
+  var isMine = d.takenBy === currentAgent;
+  var isNew = !d.takenBy && d.status === 'assigned';
+  var isDone = d.status === 'delivered';
+
+  var html = '';
+
+  // MAP
+  html += '<div class="map-card">' +
+    '<div class="map-header"><h3>🗺️ Route Map</h3><div class="live-badge"><div class="online-dot" style="background:var(--red)"></div> LIVE</div></div>' +
+    '<div class="map-visual"><div class="map-grid"></div>' +
+      '<div class="map-route">' +
+        '<div class="map-pin"><div class="pin-icon">📍</div><div class="pin-label">PICKUP</div></div>' +
+        '<div class="route-line"></div>' +
+        '<div class="map-pin"><div class="pin-icon">🏠</div><div class="pin-label">D NGO</div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="map-footer">' +
+      '<div class="route-info"><div class="ri-val">~2.5 km</div><div class="ri-label">Distance</div></div>' +
+      '<div class="route-info"><div class="ri-val">~8 min</div><div class="ri-label">Est. Time</div></div>' +
+      '<div class="route-info"><div class="ri-val">1 Stop</div><div class="ri-label">Pickup</div></div>' +
+    '</div>' +
+  '</div>';
+
+  // ORDER ID & STATUS
+  html += '<div class="detail-card">' +
+    '<h3>📋 Order Details — #FD-' + String(d.id||idx+1).padStart(4,'0') + '</h3>' +
+    '<div class="detail-row"><div class="dr-icon food">🍱</div><div><div class="dr-label">Food Item</div><div class="dr-val">' + d.food + ' &nbsp;•&nbsp; ' + (d.type||'') + ' &nbsp;•&nbsp; ' + (d.category||'') + '</div></div></div>' +
+    '<div class="detail-row"><div class="dr-icon qty">👥</div><div><div class="dr-label">Quantity</div><div class="dr-val">' + d.quantity + '</div></div></div>' +
+    '<div class="detail-row"><div class="dr-icon pickup">📍</div><div><div class="dr-label">Pickup From (Donor)</div><div class="dr-val">' + d.name + '<br><span style="color:var(--muted);font-size:.8rem;">' + (d.address||d.district||'N/A') + '</span><br><a href="tel:' + d.phoneno + '" style="color:var(--orange);font-size:.8rem;text-decoration:none;font-weight:700;">📞 ' + d.phoneno + '</a></div></div></div>' +
+    '<div class="detail-row"><div class="dr-icon drop">⏰</div><div><div class="dr-label">Donated At</div><div class="dr-val">' + d.datetime + '</div></div></div>' +
+  '</div>';
+
+  // DELIVERY ADDRESS — D NGO (always)
+  html += '<div class="surya-card">' +
+    '<div class="sc-title">📦 Delivery Destination</div>' +
+    '<div class="sc-name">🌟 D NGO</div>' +
+    '<div class="sc-addr">KalyanNagar, Bangalore<br>Contact: laxtline@gmail.com &nbsp;|&nbsp; 9938649590</div>' +
+    '<a href="' + D_NGO.mapUrl + '" target="_blank" class="sc-map">🗺️ Open in Google Maps</a>' +
+  '</div>';
+
+  // ACTION BUTTONS
+  if (isDone) {
+    html += '<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:16px;text-align:center;color:var(--blue);font-weight:700;">✅ Delivered Successfully</div>';
+  } else if (isNew) {
+    html += '<div class="action-row">' +
+      '<button class="act-btn btn-accept" onclick="acceptOrder(' + idx + ')">✅ Accept Order</button>' +
+      '<button class="act-btn btn-disabled" disabled>🚚 Pick Up</button>' +
+    '</div>';
+  } else if (isMine) {
+    html += '<div class="action-row">' +
+      '<button class="act-btn btn-disabled" disabled>✅ Accepted</button>' +
+      '<button class="act-btn btn-pickup" onclick="markPickedUp(' + idx + ')">🛵 Mark Picked Up</button>' +
+      '<button class="act-btn btn-deliver" onclick="markDelivered(' + idx + ')">✅ Mark as Delivered to D NGO</button>' +
+    '</div>';
+  }
+
+  document.getElementById('rightPanel').innerHTML = html;
+}
+
+function acceptOrder(idx) {
+  var all = getDonations();
+  all[idx].takenBy = currentAgent;
+  all[idx].status = 'in-delivery';
+  saveDonations(all);
+  toast('✅ Order accepted! Go pick it up from ' + all[idx].address);
+  renderList();
+  selectOrder(idx);
+}
+
+function markPickedUp(idx) {
+  toast('🛵 Food picked up! Head to D NGO, KalyanNagar');
+  selectOrder(idx);
+}
+
+function markDelivered(idx) {
+  var all = getDonations();
+  all[idx].status = 'delivered';
+  all[idx].deliveredAt = new Date().toLocaleString();
+  saveDonations(all);
+  toast('🎉 Delivered to D NGO! Great job!');
+  switchTab('done', document.querySelectorAll('.tab-btn')[2]);
+}
+
+// Auto login if session exists
+document.addEventListener('DOMContentLoaded', function() {
+  var dp = localStorage.getItem('deliveryPerson');
+  if (dp) {
+    currentAgent = dp;
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    initDashboard();
+  }
+});
+</script>
+</body>
+</html>
